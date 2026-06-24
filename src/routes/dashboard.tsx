@@ -15,10 +15,13 @@ function DashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only redirect when there is genuinely no session. While a session exists
-    // but the profile is still loading, stay and show the loader.
-    if (!loading && !hasSession && !currentUser) navigate({ to: "/" });
+    // Give auth state a grace period to hydrate before redirecting, so a
+    // freshly-signed-in user isn't bounced back during the state race.
+    if (loading || hasSession || currentUser) return;
+    const t = setTimeout(() => navigate({ to: "/" }), 1500);
+    return () => clearTimeout(t);
   }, [currentUser, loading, hasSession, navigate]);
+
 
   if (loading || (hasSession && !currentUser)) {
     return (
