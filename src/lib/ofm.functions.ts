@@ -141,3 +141,35 @@ export const deleteStaff = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+const RegisterCompanyInput = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(6),
+  companyName: z.string().min(1),
+  companyType: z.string().min(1),
+});
+
+// Public registration: creates a confirmed admin user so login works
+// immediately regardless of the project's email-confirmation setting.
+// The handle_new_user trigger provisions the company, profile, and admin role
+// from the user_metadata below.
+export const registerCompany = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => RegisterCompanyInput.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: data.password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: data.name,
+        company_name: data.companyName,
+        company_type: data.companyType,
+      },
+    });
+    if (error) throw new Error(error.message);
+
+    return { ok: true };
+  });
