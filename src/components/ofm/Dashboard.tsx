@@ -362,29 +362,6 @@ function TasksView({ role }: { role: Role }) {
               ))}
             </div>
           </div>
-          {role === "manager" && (
-            <div className="space-y-1">
-              <Label className="flex items-center gap-1"><Sparkles className="h-3.5 w-3.5 text-accent" /> AI Task Assistant</Label>
-              <Textarea
-                value={aiHelper}
-                onChange={(e) => setAiHelper(e.target.value)}
-                rows={2}
-                placeholder="Describe the goal and let AI draft the task..."
-              />
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={!aiHelper.trim()}
-                onClick={() => {
-                  setTitle(aiHelper.split(/[.!?]/)[0].slice(0, 60));
-                  setDesc(`AI-drafted: ${aiHelper}`);
-                  toast.success("AI drafted your task below");
-                }}
-              >
-                <Sparkles className="mr-2 h-4 w-4" /> Generate with AI
-              </Button>
-            </div>
-          )}
           <Button
             className="w-full"
             disabled={!title || roles.length === 0}
