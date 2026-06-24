@@ -22,6 +22,7 @@ import {
   Megaphone,
   Send,
   MessageCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,7 +55,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Chatbot } from "@/components/ofm/Chatbot";
-import { useOFM, ROLE_LABELS, type Role, type User } from "@/lib/ofm-store";
+import { useOFM, ROLE_LABELS, getLeaveUsage, LEAVE_LIMIT_DAYS, type Role, type User } from "@/lib/ofm-store";
 import { useSavedInsights } from "@/lib/saved-insights";
 import { generateEvent } from "@/lib/event.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -190,6 +191,57 @@ function StatCard({ title, value, sub, icon: Icon }: { title: string; value: str
   );
 }
 
+function LeaveLimitWarnings({ role }: { role: Role }) {
+  const { leaves, users, currentUser } = useOFM();
+  if (!currentUser) return null;
+  const isManagerial = role === "admin" || role === "manager";
+
+  // Managerial roles see warnings for all low-balance staff;
+  // staff only see their own warning.
+  const targets = isManagerial
+    ? users.filter((u) => u.role !== "admin")
+    : users.filter((u) => u.id === currentUser.id);
+
+  const warnings = targets
+    .map((u) => ({ user: u, usage: getLeaveUsage(leaves, u.id) }))
+    .filter((w) => w.usage.isLow);
+
+  if (warnings.length === 0) return null;
+
+  return (
+    <Card className="border-destructive/40 bg-destructive/5">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-base text-destructive">
+          <AlertTriangle className="h-5 w-5" /> Leave Balance Warning
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {warnings.map(({ user, usage }) => (
+          <div
+            key={user.id}
+            className="flex items-center justify-between rounded-lg border border-destructive/30 bg-background p-3"
+          >
+            <div>
+              <p className="text-sm font-medium">
+                {isManagerial ? user.name : "You"}
+                {isManagerial && (
+                  <span className="ml-2 text-xs text-muted-foreground">{ROLE_LABELS[user.role]}</span>
+                )}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Used {usage.used} of {LEAVE_LIMIT_DAYS} leave days
+              </p>
+            </div>
+            <Badge variant={usage.isExceeded ? "destructive" : "outline"}>
+              {usage.isExceeded ? "Limit reached" : `${usage.remaining} day(s) left`}
+            </Badge>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 function DashboardView({ role }: { role: Role }) {
   const { tasks, leaves, attendance, currentUser } = useOFM();
   const pendingLeaves = leaves.filter((l) => l.status === "pending").length;
@@ -198,6 +250,8 @@ function DashboardView({ role }: { role: Role }) {
 
   return (
     <div className="space-y-6">
+      <LeaveLimitWarnings role={role} />
+
       <Card className="overflow-hidden border-0 bg-gradient-hero text-primary-foreground">
         <CardContent className="flex items-center gap-4 p-6">
           <Sparkles className="h-8 w-8" />
