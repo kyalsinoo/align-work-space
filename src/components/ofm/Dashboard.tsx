@@ -305,7 +305,7 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
       <DialogContent>
         <DialogHeader><DialogTitle>{initial ? "Edit Staff" : "Create Staff Account"}</DialogTitle></DialogHeader>
         <div className="space-y-3">
-          <div className="space-y-1"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div className="space-y-1"><Label>Full Name</Label><Input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} /></div>
           <div className="space-y-1"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
           <div className="space-y-1"><Label>Password</Label><Input value={password} onChange={(e) => setPassword(e.target.value)} /></div>
           <div className="space-y-1">

@@ -88,7 +88,7 @@ function Landing() {
                 <CardContent className="space-y-3 pt-6">
                   <p className="text-sm text-muted-foreground">Company Registration <span className="text-xs">(Admin)</span></p>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1"><Label>Name</Label><Input value={rName} onChange={(e) => setRName(e.target.value)} /></div>
+                    <div className="space-y-1"><Label>Full Name</Label><Input placeholder="Full name" value={rName} onChange={(e) => setRName(e.target.value)} /></div>
                     <div className="space-y-1"><Label>Email</Label><Input type="email" value={rEmail} onChange={(e) => setREmail(e.target.value)} /></div>
                   </div>
                   <div className="space-y-1"><Label>Password</Label><Input type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} /></div>
