@@ -273,9 +273,6 @@ function EmployeesView({ role }: { role: Role }) {
                           onSave={(d) => { updateStaff(u.id, d); toast.success("Staff updated"); }}
                           trigger={<Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>}
                         />
-                        <Button size="icon" variant="ghost" className="text-destructive" onClick={() => { deleteStaff(u.id); toast.success("Staff deleted"); }}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </TableCell>
                   )}
