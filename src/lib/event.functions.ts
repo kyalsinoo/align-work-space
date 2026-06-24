@@ -8,6 +8,9 @@ const EventInput = z.object({
   date: z.string().optional(),
   time: z.string().optional(),
   companyType: z.string().nullable().optional(),
+  details: z.string().optional(),
+  language: z.enum(["en", "my"]).optional(),
+  imageDataUrl: z.string().optional(),
 });
 
 export const generateEvent = createServerFn({ method: "POST" })
@@ -18,18 +21,39 @@ export const generateEvent = createServerFn({ method: "POST" })
 
     const gateway = createLovableAiGatewayProvider(key);
 
-    const prompt = `Create an engaging office event announcement.
+    const langInstruction =
+      data.language === "my"
+        ? "Write BOTH the title and description in Burmese (Myanmar language)."
+        : "Write the title and description in English.";
+
+    const promptText = `Create an engaging office event announcement.
 Event type: ${data.eventType}
 ${data.date ? `Date: ${data.date}` : ""}
 ${data.time ? `Time: ${data.time}` : ""}
 ${data.companyType ? `Company context: ${data.companyType}` : ""}
+${data.details ? `Extra context / notes from the admin: ${data.details}` : ""}
+${data.imageDataUrl ? "An admin-uploaded reference image is attached — use it to craft a fitting title and description." : ""}
+
+${langInstruction}
 
 Produce:
 - title: a short, catchy event title (max 8 words)
 - description: a warm, inviting 2-3 sentence description relevant to the event
-- imageKeywords: 1-3 lowercase comma-free keywords (single words separated by spaces) describing a fitting photo for this event`;
+- imageKeywords: 1-3 lowercase comma-free keywords in ENGLISH (single words separated by spaces) describing a fitting photo for this event`;
 
     try {
+      const messages = data.imageDataUrl
+        ? [
+            {
+              role: "user" as const,
+              content: [
+                { type: "text" as const, text: promptText },
+                { type: "image" as const, image: data.imageDataUrl },
+              ],
+            },
+          ]
+        : undefined;
+
       const { output } = await generateText({
         model: gateway("google/gemini-3-flash-preview"),
         output: Output.object({
@@ -39,11 +63,14 @@ Produce:
             imageKeywords: z.string(),
           }),
         }),
-        prompt,
+        ...(messages ? { messages } : { prompt: promptText }),
       });
 
+      // Prefer the admin-uploaded image when provided; otherwise build one from keywords.
       const keywords = output.imageKeywords.trim().split(/\s+/).slice(0, 3).join(",") || "celebration";
-      const imageUrl = `https://loremflickr.com/800/450/${encodeURIComponent(keywords)}?lock=${Math.floor(Math.random() * 1000)}`;
+      const imageUrl =
+        data.imageDataUrl ||
+        `https://loremflickr.com/800/450/${encodeURIComponent(keywords)}?lock=${Math.floor(Math.random() * 1000)}`;
 
       return { title: output.title, description: output.description, imageUrl };
     } catch (err) {

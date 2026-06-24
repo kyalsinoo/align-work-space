@@ -686,15 +686,44 @@ function EventsView({ role }: { role: Role }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [details, setDetails] = useState("");
+  const [language, setLanguage] = useState<"en" | "my">("en");
+  const [uploadedImage, setUploadedImage] = useState("");
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const runGenerate = useServerFn(generateEvent);
+
+  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("Image too large (max 4MB)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const url = String(reader.result);
+      setUploadedImage(url);
+      setImageUrl(url);
+    };
+    reader.readAsDataURL(file);
+  }
 
   async function handleGenerate() {
     if (!eventType) return;
     setGenerating(true);
     try {
-      const res = await runGenerate({ data: { eventType, date, time, companyType: company?.type ?? null } });
+      const res = await runGenerate({
+        data: {
+          eventType,
+          date,
+          time,
+          companyType: company?.type ?? null,
+          details: details || undefined,
+          language,
+          imageDataUrl: uploadedImage || undefined,
+        },
+      });
       setTitle(res.title);
       setDescription(res.description);
       setImageUrl(res.imageUrl);
@@ -716,6 +745,7 @@ function EventsView({ role }: { role: Role }) {
       await saveEvent({ eventType, date, time, title, description, imageUrl });
       toast.success("Event published");
       setEventType(""); setDate(""); setTime(""); setTitle(""); setDescription(""); setImageUrl("");
+      setDetails(""); setUploadedImage(""); setLanguage("en");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to publish event");
     } finally {
@@ -734,6 +764,23 @@ function EventsView({ role }: { role: Role }) {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1"><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
                 <div className="space-y-1"><Label>Time</Label><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></div>
+              </div>
+              <div className="space-y-1"><Label>Extra details for AI (optional)</Label><Textarea rows={3} placeholder="e.g. theme, dress code, special guests, tone you want…" value={details} onChange={(e) => setDetails(e.target.value)} /></div>
+              <div className="space-y-1">
+                <Label>Reference picture (optional)</Label>
+                <Input type="file" accept="image/*" onChange={handleImageUpload} />
+                {uploadedImage && (
+                  <div className="mt-2 aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                    <img src={uploadedImage} alt="Reference" className="h-full w-full object-cover" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label>Output language</Label>
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" variant={language === "en" ? "default" : "outline"} onClick={() => setLanguage("en")}>English</Button>
+                  <Button type="button" size="sm" variant={language === "my" ? "default" : "outline"} onClick={() => setLanguage("my")}>Burmese (မြန်မာ)</Button>
+                </div>
               </div>
               <Button className="w-full" variant="secondary" disabled={!eventType || generating} onClick={handleGenerate}>
                 {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
