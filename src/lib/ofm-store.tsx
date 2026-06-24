@@ -29,6 +29,32 @@ async function extractFnError(error: unknown, fallback: string): Promise<string>
   return error instanceof Error ? error.message : fallback;
 }
 
+// Annual leave policy: each staff member gets 20 leave days per year.
+// When 15 or more approved days are used (5 or fewer remaining) we warn.
+export const LEAVE_LIMIT_DAYS = 20;
+export const LEAVE_WARNING_THRESHOLD = 5;
+
+export interface LeaveUsage {
+  used: number;
+  remaining: number;
+  isLow: boolean;
+  isExceeded: boolean;
+}
+
+/** Each approved leave request counts as one used leave day. */
+export function getLeaveUsage(leaves: Leave[], userId: string): LeaveUsage {
+  const used = leaves.filter((l) => l.userId === userId && l.status === "approved").length;
+  const remaining = Math.max(0, LEAVE_LIMIT_DAYS - used);
+  return {
+    used,
+    remaining,
+    isLow: remaining <= LEAVE_WARNING_THRESHOLD,
+    isExceeded: used >= LEAVE_LIMIT_DAYS,
+  };
+}
+
+
+
 export interface Company {
   id: string;
   name: string;
