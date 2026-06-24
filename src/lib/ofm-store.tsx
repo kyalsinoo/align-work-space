@@ -122,6 +122,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [leaves, setLeaves] = useState<Leave[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
+  const [events, setEvents] = useState<OfmEvent[]>([]);
   const [wifiPassword, setWifiPw] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
