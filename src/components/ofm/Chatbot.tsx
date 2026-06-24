@@ -19,6 +19,25 @@ interface Props {
   variant?: "staff" | "manager" | "admin";
 }
 
+// Anonymous, client-only profanity/negativity detection.
+// No message, user ID, or flag is ever sent to or stored in the database.
+const PROFANITY = [
+  "fuck", "shit", "bitch", "asshole", "bastard", "dick", "cunt", "damn",
+  "crap", "piss", "slut", "whore", "idiot", "stupid", "moron", "retard",
+  "hate you", "shut up", "screw you", "dumbass", "jerk", "loser",
+  "ကောင်မလေး", "ကောင်ဆိုး", "ဖင်", "ညစ်ညမ်း",
+];
+
+function containsProfanity(text: string): boolean {
+  const t = text.toLowerCase();
+  return PROFANITY.some((w) => {
+    if (/[a-z]/.test(w)) {
+      return new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(t);
+    }
+    return t.includes(w);
+  });
+}
+
 export function Chatbot({ variant = "staff" }: Props) {
   const { wifiPassword, currentUser, company, addLeave } = useOFM();
   const chat = useServerFn(sendChat);
