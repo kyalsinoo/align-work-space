@@ -52,6 +52,19 @@ export function Chatbot({ variant = "staff" }: Props) {
   async function handleSend() {
     if (!input.trim() || thinking) return;
     const text = input.trim();
+
+    // Client-side, anonymous profanity/negativity guard.
+    // Nothing is logged, flagged, or persisted — handled instantly in the UI.
+    if (containsProfanity(text)) {
+      setInput("");
+      push({
+        id: crypto.randomUUID(),
+        from: "bot",
+        text: "Let's keep things professional and respectful here 🙏 I'm happy to help once we rephrase that. (သင့်လျော်စွာ ပြောဆိုပေးပါ။)",
+      });
+      return;
+    }
+
     push({ id: crypto.randomUUID(), from: "user", text });
     setInput("");
 
