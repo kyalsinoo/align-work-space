@@ -579,3 +579,62 @@ function SettingsView() {
     </div>
   );
 }
+
+/* ---------- Saved AI Insights (private per user) ---------- */
+function SavedInsightsView() {
+  const { currentUser } = useOFM();
+  const { items, remove } = useSavedInsights(currentUser?.id);
+
+  return (
+    <div className="space-y-6">
+      <Card className="overflow-hidden border-0 bg-gradient-hero text-primary-foreground">
+        <CardContent className="flex items-center gap-4 p-6">
+          <Bookmark className="h-8 w-8" />
+          <div>
+            <p className="text-sm font-semibold">My Knowledge Base</p>
+            <p className="text-sm opacity-90">
+              Your private collection of saved AI replies. Only you can see these — no other staff or admin has access.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {items.length === 0 ? (
+        <Card>
+          <CardContent className="p-10 text-center text-sm text-muted-foreground">
+            No saved insights yet. Tap the <span className="font-medium">Save</span> button under any chatbot reply to keep it here.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
+          {items.map((it) => (
+            <Card key={it.id}>
+              <CardContent className="flex items-start justify-between gap-4 p-5">
+                <div className="min-w-0 flex-1">
+                  <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_pre]:my-2 [&_ul]:my-1 [&_ol]:my-1">
+                    <ReactMarkdown>{it.text}</ReactMarkdown>
+                  </div>
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Saved {new Date(it.savedAt).toLocaleString()}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-destructive"
+                  aria-label="Remove insight"
+                  onClick={() => {
+                    remove(it.id);
+                    toast.success("Removed from your insights");
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
