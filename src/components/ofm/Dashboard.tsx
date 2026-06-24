@@ -745,6 +745,7 @@ function EventsView({ role }: { role: Role }) {
       await saveEvent({ eventType, date, time, title, description, imageUrl });
       toast.success("Event published");
       setEventType(""); setDate(""); setTime(""); setTitle(""); setDescription(""); setImageUrl("");
+      setDetails(""); setUploadedImage(""); setLanguage("en");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to publish event");
     } finally {
