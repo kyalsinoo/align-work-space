@@ -29,8 +29,15 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { registerCompany, signIn } = useOFM();
+  const { registerCompany, signIn, hasSession, currentUser } = useOFM();
   const navigate = useNavigate();
+
+  // Once auth resolves (e.g. right after registration/sign-in), forward to the
+  // dashboard regardless of timing races between sign-in and state hydration.
+  useEffect(() => {
+    if (hasSession && currentUser) navigate({ to: "/dashboard" });
+  }, [hasSession, currentUser, navigate]);
+
 
   // register fields
   const [rName, setRName] = useState("");
