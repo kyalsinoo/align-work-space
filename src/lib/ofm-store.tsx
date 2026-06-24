@@ -191,8 +191,15 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           checkOut: a.check_out ?? undefined,
         })),
       );
+      } finally {
+        /* nothing */
+      }
+    })();
+    inFlight.current = run;
+    try {
+      await run;
     } finally {
-      loadingRef.current = false;
+      inFlight.current = null;
     }
   }, []);
 
