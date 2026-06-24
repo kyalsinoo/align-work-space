@@ -155,6 +155,7 @@ export function Dashboard() {
           {view === "tasks" && <TasksView role={role} />}
           {view === "leave" && <LeaveView />}
           {view === "attendance" && <AttendanceView role={role} />}
+          {view === "events" && <EventsView role={role} />}
           {view === "insights" && <SavedInsightsView />}
           {view === "settings" && <SettingsView />}
         </div>
