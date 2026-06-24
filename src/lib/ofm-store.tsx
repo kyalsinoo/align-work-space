@@ -209,17 +209,22 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     currentUser,
 
     registerCompany: async ({ name, email, password, companyName, companyType }) => {
-      // Create a confirmed admin via server function (provisions company + role
+      // Create a confirmed admin via edge function (provisions company + role
       // through the handle_new_user trigger), then sign in immediately.
-      const { registerCompany: registerCompanyFn } = await import("@/lib/ofm.functions");
-      await registerCompanyFn({ data: { name, email, password, companyName, companyType } });
+      const { error: fnError } = await supabase.functions.invoke("register-company", {
+        body: { name, email, password, companyName, companyType },
+      });
+      if (fnError) {
+        const msg = await extractFnError(fnError, "Registration failed");
+        throw new Error(msg);
+      }
 
       const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error || !signInData.session) throw new Error("Account created, but automatic sign-in failed. Please sign in.");
       setSession(signInData.session);
       await refresh(signInData.session.user.id);
-
     },
+
 
     signIn: async (email, password) => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
