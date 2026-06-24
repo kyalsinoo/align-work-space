@@ -41,6 +41,7 @@ function containsProfanity(text: string): boolean {
 
 export function Chatbot({ variant = "staff" }: Props) {
   const { wifiPassword, currentUser, company, addLeave } = useOFM();
+  const { save: saveInsight } = useSavedInsights(currentUser?.id);
   const chat = useServerFn(sendChat);
 
   const dept = currentUser
