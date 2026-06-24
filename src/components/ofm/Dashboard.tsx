@@ -765,6 +765,23 @@ function EventsView({ role }: { role: Role }) {
                 <div className="space-y-1"><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
                 <div className="space-y-1"><Label>Time</Label><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></div>
               </div>
+              <div className="space-y-1"><Label>Extra details for AI (optional)</Label><Textarea rows={3} placeholder="e.g. theme, dress code, special guests, tone you want…" value={details} onChange={(e) => setDetails(e.target.value)} /></div>
+              <div className="space-y-1">
+                <Label>Reference picture (optional)</Label>
+                <Input type="file" accept="image/*" onChange={handleImageUpload} />
+                {uploadedImage && (
+                  <div className="mt-2 aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                    <img src={uploadedImage} alt="Reference" className="h-full w-full object-cover" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label>Output language</Label>
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" variant={language === "en" ? "default" : "outline"} onClick={() => setLanguage("en")}>English</Button>
+                  <Button type="button" size="sm" variant={language === "my" ? "default" : "outline"} onClick={() => setLanguage("my")}>Burmese (မြန်မာ)</Button>
+                </div>
+              </div>
               <Button className="w-full" variant="secondary" disabled={!eventType || generating} onClick={handleGenerate}>
                 {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                 AI Generate Event
