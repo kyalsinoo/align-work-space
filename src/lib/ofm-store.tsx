@@ -111,9 +111,9 @@ export function OFMProvider({ children }: { children: ReactNode }) {
   const [wifiPassword, setWifiPw] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const loadingRef = useRef(false);
+  const inFlight = useRef<Promise<void> | null>(null);
 
-  const refresh = useCallback(async (uid: string | undefined) => {
+  const refresh = useCallback(async (uid: string | undefined): Promise<void> => {
     if (!uid) {
       setCompany(null);
       setUsers([]);
@@ -124,8 +124,14 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       setWifiPw("");
       return;
     }
-    if (loadingRef.current) return;
-    loadingRef.current = true;
+    // Dedupe concurrent refreshes (e.g. onAuthStateChange + explicit call) by
+    // sharing the same in-flight promise so awaiters all see the loaded state.
+    if (inFlight.current) {
+      await inFlight.current;
+      return;
+    }
+    const run = (async () => {
+
     try {
       const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes] = await Promise.all([
         supabase.from("companies").select("*").maybeSingle(),
