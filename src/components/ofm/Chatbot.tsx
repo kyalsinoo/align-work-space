@@ -19,6 +19,25 @@ interface Props {
   variant?: "staff" | "manager" | "admin";
 }
 
+// Anonymous, client-only profanity/negativity detection.
+// No message, user ID, or flag is ever sent to or stored in the database.
+const PROFANITY = [
+  "fuck", "shit", "bitch", "asshole", "bastard", "dick", "cunt", "damn",
+  "crap", "piss", "slut", "whore", "idiot", "stupid", "moron", "retard",
+  "hate you", "shut up", "screw you", "dumbass", "jerk", "loser",
+  "ကောင်မလေး", "ကောင်ဆိုး", "ဖင်", "ညစ်ညမ်း",
+];
+
+function containsProfanity(text: string): boolean {
+  const t = text.toLowerCase();
+  return PROFANITY.some((w) => {
+    if (/[a-z]/.test(w)) {
+      return new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(t);
+    }
+    return t.includes(w);
+  });
+}
+
 export function Chatbot({ variant = "staff" }: Props) {
   const { wifiPassword, currentUser, company, addLeave } = useOFM();
   const chat = useServerFn(sendChat);
@@ -52,6 +71,19 @@ export function Chatbot({ variant = "staff" }: Props) {
   async function handleSend() {
     if (!input.trim() || thinking) return;
     const text = input.trim();
+
+    // Client-side, anonymous profanity/negativity guard.
+    // Nothing is logged, flagged, or persisted — handled instantly in the UI.
+    if (containsProfanity(text)) {
+      setInput("");
+      push({
+        id: crypto.randomUUID(),
+        from: "bot",
+        text: "Let's keep things professional and respectful here 🙏 I'm happy to help once we rephrase that. (သင့်လျော်စွာ ပြောဆိုပေးပါ။)",
+      });
+      return;
+    }
+
     push({ id: crypto.randomUUID(), from: "user", text });
     setInput("");
 
