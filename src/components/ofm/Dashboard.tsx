@@ -84,6 +84,7 @@ export function Dashboard() {
       ? [{ key: "leave" as ViewKey, label: "Leave Management", icon: CalendarDays }]
       : []),
     { key: "attendance", label: "Attendance", icon: Clock },
+    { key: "insights" as ViewKey, label: "Saved AI Insights", icon: Bookmark },
     ...(role === "admin" ? [{ key: "settings" as ViewKey, label: "Settings", icon: Settings }] : []),
   ];
 
