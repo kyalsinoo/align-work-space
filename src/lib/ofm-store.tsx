@@ -208,6 +208,19 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           checkOut: a.check_out ?? undefined,
         })),
       );
+
+      setEvents(
+        (eventsRes.data ?? []).map((e) => ({
+          id: e.id,
+          eventType: e.event_type,
+          date: e.event_date,
+          time: e.event_time,
+          title: e.title,
+          description: e.description,
+          imageUrl: e.image_url,
+          status: e.status,
+        })),
+      );
       } finally {
         /* nothing */
       }
