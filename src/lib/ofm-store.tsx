@@ -70,6 +70,17 @@ export interface Attendance {
   checkOut?: string;
 }
 
+export interface OfmEvent {
+  id: string;
+  eventType: string;
+  date: string;
+  time: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  status: string;
+}
+
 interface OFMContextValue {
   loading: boolean;
   company: Company | null;
@@ -77,6 +88,7 @@ interface OFMContextValue {
   tasks: Task[];
   leaves: Leave[];
   attendance: Attendance[];
+  events: OfmEvent[];
   wifiPassword: string;
   currentUser: User | null;
   hasSession: boolean;
@@ -93,6 +105,7 @@ interface OFMContextValue {
   checkIn: () => Promise<void>;
   checkOut: () => Promise<void>;
   setWifiPassword: (pw: string) => Promise<void>;
+  saveEvent: (data: { eventType: string; date: string; time: string; title: string; description: string; imageUrl: string }) => Promise<void>;
 }
 
 const OFMContext = createContext<OFMContextValue | null>(null);
@@ -109,6 +122,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [leaves, setLeaves] = useState<Leave[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
+  const [events, setEvents] = useState<OfmEvent[]>([]);
   const [wifiPassword, setWifiPw] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
@@ -121,6 +135,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       setTasks([]);
       setLeaves([]);
       setAttendance([]);
+      setEvents([]);
       setCurrentUser(null);
       setWifiPw("");
       return;
@@ -133,13 +148,14 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     }
     const run = (async () => {
       try {
-      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes] = await Promise.all([
+      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes, eventsRes] = await Promise.all([
         supabase.from("companies").select("*").maybeSingle(),
         supabase.from("profiles").select("id, full_name, email"),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("tasks").select("*").order("created_at", { ascending: false }),
         supabase.from("leaves").select("*").order("created_at", { ascending: false }),
         supabase.from("attendance").select("*").order("date", { ascending: false }),
+        supabase.from("events").select("*").order("event_date", { ascending: true }),
       ]);
 
       if (companyRes.data) {
@@ -192,6 +208,19 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           checkOut: a.check_out ?? undefined,
         })),
       );
+
+      setEvents(
+        (eventsRes.data ?? []).map((e) => ({
+          id: e.id,
+          eventType: e.event_type,
+          date: e.event_date,
+          time: e.event_time,
+          title: e.title,
+          description: e.description,
+          imageUrl: e.image_url,
+          status: e.status,
+        })),
+      );
       } finally {
         /* nothing */
       }
@@ -241,6 +270,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     tasks,
     leaves,
     attendance,
+    events,
     wifiPassword,
     currentUser,
 
@@ -403,6 +433,24 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from("companies").update({ wifi_password: pw }).eq("id", company.id);
       if (error) throw error;
       setWifiPw(pw);
+    },
+
+    saveEvent: async ({ eventType, date, time, title, description, imageUrl }) => {
+      if (!company || !currentUser) return;
+      const { error } = await supabase.from("events").insert({
+        company_id: company.id,
+        event_type: eventType,
+        event_date: date,
+        event_time: time,
+        title,
+        description,
+        image_url: imageUrl,
+        status: "published",
+        created_by: currentUser.id,
+        created_by_name: currentUser.name,
+      });
+      if (error) throw error;
+      await refresh(uid);
     },
   };
 

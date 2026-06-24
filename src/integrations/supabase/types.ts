@@ -82,6 +82,62 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          created_by_name: string
+          description: string
+          event_date: string
+          event_time: string
+          event_type: string
+          id: string
+          image_url: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string
+          description?: string
+          event_date?: string
+          event_time?: string
+          event_type?: string
+          id?: string
+          image_url?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string
+          description?: string
+          event_date?: string
+          event_time?: string
+          event_type?: string
+          id?: string
+          image_url?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leaves: {
         Row: {
           company_id: string
