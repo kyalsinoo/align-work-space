@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { broadcastAnnouncement } from "@/lib/announcement.functions";
 
 
 export type Role = "admin" | "manager" | "sales" | "developer";
