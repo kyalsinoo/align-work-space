@@ -53,6 +53,8 @@ import {
 import { Chatbot } from "@/components/ofm/Chatbot";
 import { useOFM, ROLE_LABELS, type Role, type User } from "@/lib/ofm-store";
 import { useSavedInsights } from "@/lib/saved-insights";
+import { generateEvent } from "@/lib/event.functions";
+import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
