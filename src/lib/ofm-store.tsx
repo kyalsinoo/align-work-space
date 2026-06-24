@@ -81,6 +81,15 @@ export interface OfmEvent {
   status: string;
 }
 
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  createdBy: string;
+  createdByName: string;
+  createdAt: string;
+}
+
 interface OFMContextValue {
   loading: boolean;
   company: Company | null;
@@ -89,7 +98,10 @@ interface OFMContextValue {
   leaves: Leave[];
   attendance: Attendance[];
   events: OfmEvent[];
+  announcements: Announcement[];
   wifiPassword: string;
+  telegramBotToken: string;
+  telegramChatId: string;
   currentUser: User | null;
   hasSession: boolean;
   registerCompany: (data: { name: string; email: string; password: string; companyName: string; companyType: string }) => Promise<void>;
