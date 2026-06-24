@@ -135,6 +135,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       setTasks([]);
       setLeaves([]);
       setAttendance([]);
+      setEvents([]);
       setCurrentUser(null);
       setWifiPw("");
       return;
