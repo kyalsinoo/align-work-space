@@ -257,19 +257,29 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     },
 
     createStaff: async (data) => {
-      await createStaffFn({ data });
+      const { error } = await supabase.functions.invoke("manage-staff", {
+        body: { action: "create", ...data },
+      });
+      if (error) throw new Error(await extractFnError(error, "Failed to create staff"));
       await refresh(uid);
     },
 
     updateStaff: async (id, data) => {
-      await updateStaffFn({ data: { id, ...data } });
+      const { error } = await supabase.functions.invoke("manage-staff", {
+        body: { action: "update", id, ...data },
+      });
+      if (error) throw new Error(await extractFnError(error, "Failed to update staff"));
       await refresh(uid);
     },
 
     deleteStaff: async (id) => {
-      await deleteStaffFn({ data: { id } });
+      const { error } = await supabase.functions.invoke("manage-staff", {
+        body: { action: "delete", id },
+      });
+      if (error) throw new Error(await extractFnError(error, "Failed to delete staff"));
       await refresh(uid);
     },
+
 
     createTask: async ({ title, description, roles }) => {
       if (!company || !currentUser) return;
