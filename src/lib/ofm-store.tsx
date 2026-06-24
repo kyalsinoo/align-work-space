@@ -137,7 +137,10 @@ export function OFMProvider({ children }: { children: ReactNode }) {
   const [leaves, setLeaves] = useState<Leave[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [events, setEvents] = useState<OfmEvent[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [wifiPassword, setWifiPw] = useState("");
+  const [telegramBotToken, setTelegramBotToken] = useState("");
+  const [telegramChatId, setTelegramChatId] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const inFlight = useRef<Promise<void> | null>(null);
