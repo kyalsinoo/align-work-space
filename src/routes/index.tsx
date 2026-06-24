@@ -101,6 +101,7 @@ function Landing() {
                         <SelectItem value="Tech Startup">Tech Startup</SelectItem>
                         <SelectItem value="Creative Agency">Creative Agency</SelectItem>
                         <SelectItem value="Sales">Sales</SelectItem>
+                        <SelectItem value="Skincare / Beauty">Skincare / Beauty</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
