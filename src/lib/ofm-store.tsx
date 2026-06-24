@@ -88,6 +88,7 @@ interface OFMContextValue {
   tasks: Task[];
   leaves: Leave[];
   attendance: Attendance[];
+  events: OfmEvent[];
   wifiPassword: string;
   currentUser: User | null;
   hasSession: boolean;
@@ -104,6 +105,7 @@ interface OFMContextValue {
   checkIn: () => Promise<void>;
   checkOut: () => Promise<void>;
   setWifiPassword: (pw: string) => Promise<void>;
+  saveEvent: (data: { eventType: string; date: string; time: string; title: string; description: string; imageUrl: string }) => Promise<void>;
 }
 
 const OFMContext = createContext<OFMContextValue | null>(null);
