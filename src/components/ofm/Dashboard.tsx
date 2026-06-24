@@ -570,28 +570,229 @@ function AttendanceView({ role }: { role: Role }) {
 
 /* ---------- Settings ---------- */
 function SettingsView() {
-  const { wifiPassword, setWifiPassword, company } = useOFM();
+  const {
+    wifiPassword,
+    setWifiPassword,
+    company,
+    telegramBotToken,
+    telegramChatId,
+    saveTelegramSettings,
+  } = useOFM();
   const [pw, setPw] = useState(wifiPassword);
+  const [token, setToken] = useState(telegramBotToken);
+  const [chatId, setChatId] = useState(telegramChatId);
+  const [savingTg, setSavingTg] = useState(false);
+
+  const steps = [
+    {
+      title: "Create your bot with BotFather",
+      body: (
+        <>
+          On Telegram, search for <b>@BotFather</b>, send <code className="rounded bg-muted px-1">/newbot</code>,
+          give it a name, and copy the <b>bot token</b> it gives you.
+        </>
+      ),
+    },
+    {
+      title: "Make a staff group & add the bot",
+      body: (
+        <>
+          Create a Telegram <b>Group</b> for your staff, add your new bot to it, then open the group
+          settings and <b>promote the bot to Administrator</b>.
+        </>
+      ),
+    },
+    {
+      title: "Find your Chat ID",
+      body: (
+        <>
+          Type any message in the group, then open{" "}
+          <code className="break-all rounded bg-muted px-1">
+            https://api.telegram.org/bot&lt;YOUR_TOKEN&gt;/getUpdates
+          </code>{" "}
+          in your browser and copy the <b>Chat ID</b> (the negative number, e.g. <b>-1001234567890</b>).
+        </>
+      ),
+    },
+    {
+      title: "Paste & save",
+      body: <>Paste both the <b>token</b> and the <b>Chat ID</b> below and click Save.</>,
+    },
+  ];
+
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Wifi className="h-4 w-4" /> Office Wi-Fi Password</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">Staff can ask the chatbot for this value.</p>
+            <Input value={pw} onChange={(e) => setPw(e.target.value)} />
+            <Button onClick={() => { setWifiPassword(pw); toast.success("Wi-Fi password updated"); }}>Save</Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-base">Company</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p><span className="text-muted-foreground">Name:</span> {company?.name}</p>
+            <p><span className="text-muted-foreground">Type:</span> {company?.type}</p>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Wifi className="h-4 w-4" /> Office Wi-Fi Password</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">Staff can ask the chatbot for this value.</p>
-          <Input value={pw} onChange={(e) => setPw(e.target.value)} />
-          <Button onClick={() => { setWifiPassword(pw); toast.success("Wi-Fi password updated"); }}>Save</Button>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader><CardTitle className="text-base">Company</CardTitle></CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p><span className="text-muted-foreground">Name:</span> {company?.name}</p>
-          <p><span className="text-muted-foreground">Type:</span> {company?.type}</p>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Send className="h-4 w-4" /> How to Setup Telegram Notification Bot
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <ol className="grid gap-4 md:grid-cols-2">
+            {steps.map((s, i) => (
+              <li key={i} className="flex gap-3 rounded-xl border border-border bg-muted/40 p-4">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-brand text-sm font-bold text-primary-foreground">
+                  {i + 1}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold">{s.title}</p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">TELEGRAM_BOT_TOKEN</Label>
+              <Input
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="123456:ABC-DEF..."
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">TELEGRAM_CHAT_ID</Label>
+              <Input
+                value={chatId}
+                onChange={(e) => setChatId(e.target.value)}
+                placeholder="-1001234567890"
+              />
+            </div>
+          </div>
+          <Button
+            disabled={savingTg}
+            onClick={async () => {
+              setSavingTg(true);
+              try {
+                await saveTelegramSettings({ botToken: token.trim(), chatId: chatId.trim() });
+                toast.success("Telegram settings saved");
+              } catch {
+                toast.error("Failed to save Telegram settings");
+              } finally {
+                setSavingTg(false);
+              }
+            }}
+          >
+            {savingTg ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Save Telegram Settings
+          </Button>
         </CardContent>
       </Card>
     </div>
   );
 }
+
+/* ---------- Announcements ---------- */
+function AnnouncementsView({ role }: { role: Role }) {
+  const { announcements, publishAnnouncement } = useOFM();
+  const canPublish = role === "admin" || role === "manager";
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [publishing, setPublishing] = useState(false);
+
+  const handlePublish = async () => {
+    if (!title.trim() || !content.trim()) {
+      toast.error("Add a title and message first");
+      return;
+    }
+    setPublishing(true);
+    try {
+      const { sent, reason } = await publishAnnouncement({ title: title.trim(), content: content.trim() });
+      setTitle("");
+      setContent("");
+      if (sent) {
+        toast.success("Published & broadcast to Telegram");
+      } else if (reason === "telegram_not_configured") {
+        toast.success("Published. Add Telegram credentials in Settings to broadcast.");
+      } else {
+        toast.success("Published. Telegram broadcast failed — check your bot settings.");
+      }
+    } catch {
+      toast.error("Failed to publish announcement");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {canPublish && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Megaphone className="h-4 w-4" /> Create Announcement
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Textarea
+              placeholder="Write your announcement..."
+              rows={4}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+            <Button onClick={handlePublish} disabled={publishing}>
+              {publishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+              Publish &amp; Broadcast
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold text-muted-foreground">Announcements Feed</h2>
+        {announcements.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No announcements yet.
+          </p>
+        ) : (
+          announcements.map((a) => (
+            <Card key={a.id}>
+              <CardContent className="space-y-2 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-base font-bold">{a.title}</h3>
+                  <Badge variant="secondary" className="flex-shrink-0 text-[10px]">
+                    {new Date(a.createdAt).toLocaleString([], {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </Badge>
+                </div>
+                <p className="whitespace-pre-wrap text-sm text-muted-foreground">{a.content}</p>
+                <p className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+                  <MessageCircle className="h-3 w-3" /> {a.createdByName}
+                </p>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 /* ---------- Saved AI Insights (private per user) ---------- */
 function SavedInsightsView() {
