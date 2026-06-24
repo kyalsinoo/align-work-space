@@ -167,7 +167,7 @@ export function Chatbot({ variant = "staff" }: Props) {
               ) : (
                 <div key={m.id} className={`flex flex-col ${m.from === "user" ? "items-end" : "items-start"}`}>
                   <div
-                    className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                    className={`max-w-[85%] min-w-0 overflow-hidden rounded-2xl px-3 py-2 text-sm [overflow-wrap:anywhere] [word-break:break-word] whitespace-pre-wrap ${
                       m.from === "user"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-foreground"
@@ -176,7 +176,7 @@ export function Chatbot({ variant = "staff" }: Props) {
                     {m.from === "user" ? (
                       m.text
                     ) : (
-                      <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_pre]:my-2 [&_ul]:my-1 [&_ol]:my-1">
+                      <div className="prose prose-sm dark:prose-invert max-w-none [overflow-wrap:anywhere] [&_code]:whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_ol]:my-1 [&_p]:my-1 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-background/80 [&_pre]:p-3 [&_pre_code]:whitespace-pre [&_ul]:my-1">
                         <ReactMarkdown>{m.text}</ReactMarkdown>
                       </div>
                     )}
