@@ -71,10 +71,14 @@ function Landing() {
                   <div className="space-y-1"><Label>Password</Label><Input type="password" value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
                   <Button
                     className="w-full"
-                    onClick={() => {
-                      const u = signIn(sEmail, sPass);
-                      if (u) { toast.success(`Welcome, ${u.name}`); navigate({ to: "/dashboard" }); }
-                      else toast.error("Invalid credentials");
+                    onClick={async () => {
+                      try {
+                        const u = await signIn(sEmail, sPass);
+                        if (u) { toast.success(`Welcome, ${u.name}`); navigate({ to: "/dashboard" }); }
+                        else toast.error("Invalid credentials");
+                      } catch {
+                        toast.error("Invalid credentials");
+                      }
                     }}
                   >
                     Sign In
