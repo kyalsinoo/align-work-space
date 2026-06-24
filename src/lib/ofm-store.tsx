@@ -70,6 +70,17 @@ export interface Attendance {
   checkOut?: string;
 }
 
+export interface OfmEvent {
+  id: string;
+  eventType: string;
+  date: string;
+  time: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  status: string;
+}
+
 interface OFMContextValue {
   loading: boolean;
   company: Company | null;
