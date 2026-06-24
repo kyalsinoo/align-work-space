@@ -1,10 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, Send, X, MessageCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useOFM } from "@/lib/ofm-store";
+import { getDepartmentContext } from "@/lib/department-context";
+import { sendChat } from "@/lib/chat.functions";
 import { toast } from "sonner";
 
 type Msg =
@@ -16,67 +20,75 @@ interface Props {
 }
 
 export function Chatbot({ variant = "staff" }: Props) {
-  const { wifiPassword, currentUser, addLeave } = useOFM();
+  const { wifiPassword, currentUser, company, addLeave } = useOFM();
+  const chat = useServerFn(sendChat);
+
+  const dept = currentUser
+    ? getDepartmentContext(currentUser.role, company?.type ?? null)
+    : null;
+
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [thinking, setThinking] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([
     {
       id: "welcome",
       from: "bot",
-      text:
-        variant === "manager"
-          ? "Hello Manager 👋 I can help with team activity, leave status and attendance. မြန်မာ သို့မဟုတ် English နဲ့ မေးနိုင်ပါတယ်။"
-          : "Hi! I'm your office assistant 🤖 Ask me anything — e.g. \"What is the Wi-Fi password?\" or type \"Apply for Leave\" / \"ခွင့်တိုင်ချင်လို့\".",
+      text: dept
+        ? `Hi ${currentUser?.name?.split(" ")[0] ?? ""}! I'm your **${dept.label}** assistant 🤖 Ask me anything about ${dept.domain} or office operations. Type "Apply for Leave" / "ခွင့်တိုင်ချင်လို့" to file leave. (English • မြန်မာ)`
+        : "Hi! I'm your office assistant 🤖",
     },
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [msgs, open]);
+  }, [msgs, open, thinking]);
 
   function push(m: Msg) {
     setMsgs((prev) => [...prev, m]);
   }
 
-  function botReply(userText: string) {
-    const t = userText.toLowerCase();
-    const isMM = /[\u1000-\u109F]/.test(userText);
+  async function handleSend() {
+    if (!input.trim() || thinking) return;
+    const text = input.trim();
+    push({ id: crypto.randomUUID(), from: "user", text });
+    setInput("");
 
-    if (t.includes("apply for leave") || userText.includes("ခွင့်တိုင်") || t.includes("leave form")) {
+    const t = text.toLowerCase();
+    // Local interactive leave form trigger
+    if (t.includes("apply for leave") || text.includes("ခွင့်တိုင်") || t.includes("leave form")) {
+      const isMM = /[\u1000-\u109F]/.test(text);
       push({ id: crypto.randomUUID(), from: "bot", text: isMM ? "ခွင့်တိုင်ဖောင်ကို အောက်မှာဖြည့်ပါ 👇" : "Sure! Please fill in the leave form below 👇" });
       push({ id: crypto.randomUUID(), from: "bot", form: "leave" });
       return;
     }
-    if (t.includes("wifi") || t.includes("wi-fi") || t.includes("password") || userText.includes("ဝိုင်ဖိုင်") || userText.includes("စကားဝှက်")) {
-      push({
-        id: crypto.randomUUID(),
-        from: "bot",
-        text: isMM
-          ? `ရုံး Wi-Fi စကားဝှက်က: ${wifiPassword} ဖြစ်ပါတယ်။`
-          : `The office Wi-Fi password is: ${wifiPassword}`,
-      });
-      return;
-    }
-    if (t.includes("hello") || t.includes("hi") || userText.includes("မင်္ဂလာ")) {
-      push({ id: crypto.randomUUID(), from: "bot", text: isMM ? "မင်္ဂလာပါ! ဘာကူညီပေးရမလဲ?" : "Hello! How can I help you today?" });
-      return;
-    }
-    push({
-      id: crypto.randomUUID(),
-      from: "bot",
-      text: isMM
-        ? "နားမလည်လိုက်ပါ။ \"ဝိုင်ဖိုင် စကားဝှက်\" သို့မဟုတ် \"ခွင့်တိုင်ချင်လို့\" လို့ မေးကြည့်ပါ။"
-        : "I can help with office Q&A and leave requests. Try \"What is the Wi-Fi password?\" or \"Apply for Leave\".",
-    });
-  }
 
-  function handleSend() {
-    if (!input.trim()) return;
-    const text = input.trim();
-    push({ id: crypto.randomUUID(), from: "user", text });
-    setInput("");
-    setTimeout(() => botReply(text), 350);
+    if (!currentUser) return;
+
+    // Build conversation history for the AI (text messages only)
+    const history = [...msgs, { id: "", from: "user", text } as Msg]
+      .filter((m): m is Extract<Msg, { text: string }> => "text" in m && m.id !== "welcome")
+      .map((m) => ({ role: m.from === "user" ? ("user" as const) : ("assistant" as const), content: m.text }));
+
+    setThinking(true);
+    try {
+      const res = await chat({
+        data: {
+          role: currentUser.role,
+          companyType: company?.type ?? null,
+          userName: currentUser.name,
+          wifiPassword,
+          messages: history,
+        },
+      });
+      push({ id: crypto.randomUUID(), from: "bot", text: res.text });
+    } catch {
+      toast.error("Assistant is unavailable right now. Please try again.");
+      push({ id: crypto.randomUUID(), from: "bot", text: "Sorry, I couldn't reach the assistant. Please try again." });
+    } finally {
+      setThinking(false);
+    }
   }
 
   return (
@@ -97,8 +109,8 @@ export function Chatbot({ variant = "staff" }: Props) {
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
               <div>
-                <p className="text-sm font-semibold">Smart Assistant</p>
-                <p className="text-[10px] opacity-80">English • မြန်မာ</p>
+                <p className="text-sm font-semibold">{dept ? dept.label : "Smart Assistant"}</p>
+                <p className="text-[10px] opacity-80">{dept ? `${dept.tagline} • English • မြန်မာ` : "English • မြန်မာ"}</p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close">
@@ -127,10 +139,21 @@ export function Chatbot({ variant = "staff" }: Props) {
                         : "bg-muted text-foreground"
                     }`}
                   >
-                    {m.text}
+                    {m.from === "user" ? (
+                      m.text
+                    ) : (
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_pre]:my-2 [&_ul]:my-1 [&_ol]:my-1">
+                        <ReactMarkdown>{m.text}</ReactMarkdown>
+                      </div>
+                    )}
                   </div>
                 </div>
               ),
+            )}
+            {thinking && (
+              <div className="flex justify-start">
+                <div className="rounded-2xl bg-muted px-3 py-2 text-sm text-muted-foreground">Thinking…</div>
+              </div>
             )}
           </div>
 
@@ -142,7 +165,7 @@ export function Chatbot({ variant = "staff" }: Props) {
               placeholder="Type a message..."
               className="flex-1"
             />
-            <Button size="icon" onClick={handleSend} aria-label="Send">
+            <Button size="icon" onClick={handleSend} disabled={thinking} aria-label="Send">
               <Send className="h-4 w-4" />
             </Button>
           </div>
