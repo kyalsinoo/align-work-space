@@ -153,8 +153,11 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       setLeaves([]);
       setAttendance([]);
       setEvents([]);
+      setAnnouncements([]);
       setCurrentUser(null);
       setWifiPw("");
+      setTelegramBotToken("");
+      setTelegramChatId("");
       return;
     }
     // Dedupe concurrent refreshes (e.g. onAuthStateChange + explicit call) by
