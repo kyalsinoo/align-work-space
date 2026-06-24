@@ -879,7 +879,7 @@ function SavedInsightsView() {
             <Card key={it.id}>
               <CardContent className="flex items-start justify-between gap-4 p-5">
                 <div className="min-w-0 flex-1">
-                  <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_pre]:my-2 [&_ul]:my-1 [&_ol]:my-1">
+                  <div className="prose prose-sm dark:prose-invert max-w-none overflow-hidden [overflow-wrap:anywhere] [word-break:break-word] [&_code]:whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_ol]:my-1 [&_p]:my-1 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-background/80 [&_pre]:p-3 [&_pre_code]:whitespace-pre [&_ul]:my-1">
                     <ReactMarkdown>{it.text}</ReactMarkdown>
                   </div>
                   <p className="mt-2 text-[11px] text-muted-foreground">
