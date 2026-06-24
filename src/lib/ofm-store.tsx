@@ -168,7 +168,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     }
     const run = (async () => {
       try {
-      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes, eventsRes] = await Promise.all([
+      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes, eventsRes, announcementsRes] = await Promise.all([
         supabase.from("companies").select("*").maybeSingle(),
         supabase.from("profiles").select("id, full_name, email"),
         supabase.from("user_roles").select("user_id, role"),
@@ -176,12 +176,26 @@ export function OFMProvider({ children }: { children: ReactNode }) {
         supabase.from("leaves").select("*").order("created_at", { ascending: false }),
         supabase.from("attendance").select("*").order("date", { ascending: false }),
         supabase.from("events").select("*").order("event_date", { ascending: true }),
+        supabase.from("announcements").select("*").order("created_at", { ascending: false }),
       ]);
 
       if (companyRes.data) {
         setCompany({ id: companyRes.data.id, name: companyRes.data.name, type: companyRes.data.type });
         setWifiPw(companyRes.data.wifi_password ?? "");
+        setTelegramBotToken(companyRes.data.telegram_bot_token ?? "");
+        setTelegramChatId(companyRes.data.telegram_chat_id ?? "");
       }
+
+      setAnnouncements(
+        (announcementsRes.data ?? []).map((a) => ({
+          id: a.id,
+          title: a.title,
+          content: a.content,
+          createdBy: a.created_by ?? "",
+          createdByName: a.created_by_name,
+          createdAt: a.created_at,
+        })),
+      );
 
       const roleMap = new Map<string, Role>();
       (rolesRes.data ?? []).forEach((r) => roleMap.set(r.user_id, r.role as Role));
