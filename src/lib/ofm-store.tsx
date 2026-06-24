@@ -79,6 +79,7 @@ interface OFMContextValue {
   attendance: Attendance[];
   wifiPassword: string;
   currentUser: User | null;
+  hasSession: boolean;
   registerCompany: (data: { name: string; email: string; password: string; companyName: string; companyType: string }) => Promise<void>;
   signIn: (email: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
