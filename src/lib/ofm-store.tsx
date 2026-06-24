@@ -209,9 +209,16 @@ export function OFMProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
-      setSession(data.session);
-      refresh(data.session?.user.id).finally(() => active && setLoading(false));
+      if (data.session) {
+        setSession(data.session);
+        refresh(data.session.user.id).finally(() => active && setLoading(false));
+      } else {
+        // No session at bootstrap: just finish loading. Don't clobber state
+        // that a concurrent sign-in/registration may have already populated.
+        setLoading(false);
+      }
     });
+
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
