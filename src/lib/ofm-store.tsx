@@ -209,28 +209,15 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     currentUser,
 
     registerCompany: async ({ name, email, password, companyName, companyType }) => {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: { full_name: name, company_name: companyName, company_type: companyType },
-        },
-      });
-      if (error) throw error;
-      // If email confirmation is disabled, a session is created on signup.
-      let activeSession = (await supabase.auth.getSession()).data.session;
-      // Otherwise attempt an immediate sign-in (works when confirmation is off).
-      if (!activeSession) {
-        const { data: signInData } = await supabase.auth.signInWithPassword({ email, password });
-        activeSession = signInData?.session ?? null;
-      }
-      if (activeSession) {
-        setSession(activeSession);
-        await refresh(activeSession.user.id);
-      } else {
-        throw new Error("Account created. Please confirm your email, then sign in.");
-      }
+      // Create a confirmed admin via server function (provisions company + role
+      // through the handle_new_user trigger), then sign in immediately.
+      const { registerCompany: registerCompanyFn } = await import("@/lib/ofm.functions");
+      await registerCompanyFn({ data: { name, email, password, companyName, companyType } });
+
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error || !signInData.session) throw new Error("Account created, but automatic sign-in failed. Please sign in.");
+      setSession(signInData.session);
+      await refresh(signInData.session.user.id);
 
     },
 
