@@ -219,15 +219,15 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       });
       if (error) throw error;
       // If email confirmation is disabled, a session is created on signup.
-      let { data: sess } = await supabase.auth.getSession();
+      let activeSession = (await supabase.auth.getSession()).data.session;
       // Otherwise attempt an immediate sign-in (works when confirmation is off).
-      if (!sess.session) {
+      if (!activeSession) {
         const { data: signInData } = await supabase.auth.signInWithPassword({ email, password });
-        if (signInData?.session) sess = { session: signInData.session } as typeof sess;
+        activeSession = signInData?.session ?? null;
       }
-      if (sess.session) {
-        setSession(sess.session);
-        await refresh(sess.session.user.id);
+      if (activeSession) {
+        setSession(activeSession);
+        await refresh(activeSession.user.id);
       } else {
         throw new Error("Account created. Please confirm your email, then sign in.");
       }
