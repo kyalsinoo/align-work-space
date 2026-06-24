@@ -333,15 +333,64 @@ function TasksView({ role }: { role: Role }) {
   const { tasks, createTask, endTask } = useOFM();
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [aiHelper, setAiHelper] = useState("");
   const isStaff = role === "sales" || role === "developer";
-  const [roles, setRoles] = useState<Role[]>(isStaff ? [role] : []);
+  const [roles, setRoles] = useState<Role[]>([]);
 
-  const availableRoles = isStaff ? [role] : ASSIGN_ROLES;
-  const visibleTasks = isStaff ? tasks.filter((t) => t.roles.includes(role)) : tasks;
+  const availableRoles = ASSIGN_ROLES;
 
   function toggle(r: Role) {
     setRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
+  }
+
+  // Staff: read-only list of all tasks; they can only End tasks assigned to
+  // their own role. Admin/Manager: create + manage all tasks.
+  if (isStaff) {
+    const myTasks = tasks.filter((t) => t.roles.includes(role));
+    const otherTasks = tasks.filter((t) => !t.roles.includes(role));
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader><CardTitle className="text-base">Your Tasks</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            {myTasks.map((t) => (
+              <div key={t.id} className="flex items-center justify-between rounded-lg border border-border p-3">
+                <div>
+                  <p className="text-sm font-medium">{t.title}</p>
+                  <p className="text-xs text-muted-foreground">{t.description}</p>
+                  <p className="mt-1 text-[10px] text-muted-foreground">Assigned by {t.createdByName}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={t.status === "ended" ? "secondary" : "default"}>{t.status}</Badge>
+                  {t.status === "active" && (
+                    <Button size="sm" variant="outline" onClick={() => { endTask(t.id); toast.success("Task ended"); }}>End</Button>
+                  )}
+                </div>
+              </div>
+            ))}
+            {myTasks.length === 0 && <p className="text-center text-sm text-muted-foreground">No tasks assigned to you</p>}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">Other Tasks (read-only)</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            {otherTasks.map((t) => (
+              <div key={t.id} className="flex items-center justify-between rounded-lg border border-border p-3 opacity-75">
+                <div>
+                  <p className="text-sm font-medium">{t.title}</p>
+                  <p className="text-xs text-muted-foreground">{t.description}</p>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {t.roles.map((r) => <Badge key={r} variant="outline" className="text-[10px]">{ROLE_LABELS[r]}</Badge>)}
+                  </div>
+                </div>
+                <Badge variant={t.status === "ended" ? "secondary" : "default"}>{t.status}</Badge>
+              </div>
+            ))}
+            {otherTasks.length === 0 && <p className="text-center text-sm text-muted-foreground">No other tasks</p>}
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -352,11 +401,11 @@ function TasksView({ role }: { role: Role }) {
           <div className="space-y-1"><Label>Title</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} /></div>
           <div className="space-y-1"><Label>Description</Label><Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} /></div>
           <div className="space-y-2">
-            <Label>{isStaff ? "Assigned to (your role)" : "Assign to roles"}</Label>
+            <Label>Assign to roles</Label>
             <div className="flex flex-wrap gap-4">
               {availableRoles.map((r) => (
                 <label key={r} className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={roles.includes(r)} onCheckedChange={() => toggle(r)} disabled={isStaff} />
+                  <Checkbox checked={roles.includes(r)} onCheckedChange={() => toggle(r)} />
                   {ROLE_LABELS[r]}
                 </label>
               ))}
@@ -367,7 +416,7 @@ function TasksView({ role }: { role: Role }) {
             disabled={!title || roles.length === 0}
             onClick={() => {
               createTask({ title, description: desc, roles });
-              setTitle(""); setDesc(""); setRoles(isStaff ? [role] : []); setAiHelper("");
+              setTitle(""); setDesc(""); setRoles([]);
               toast.success("Task created");
             }}
           >
@@ -379,7 +428,7 @@ function TasksView({ role }: { role: Role }) {
       <Card>
         <CardHeader><CardTitle className="text-base">Tasks</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          {visibleTasks.map((t) => (
+          {tasks.map((t) => (
             <div key={t.id} className="flex items-center justify-between rounded-lg border border-border p-3">
               <div>
                 <p className="text-sm font-medium">{t.title}</p>
@@ -396,12 +445,13 @@ function TasksView({ role }: { role: Role }) {
               </div>
             </div>
           ))}
-          {visibleTasks.length === 0 && <p className="text-center text-sm text-muted-foreground">No tasks</p>}
+          {tasks.length === 0 && <p className="text-center text-sm text-muted-foreground">No tasks</p>}
         </CardContent>
       </Card>
     </div>
   );
 }
+
 
 /* ---------- Leave ---------- */
 function LeaveView() {
