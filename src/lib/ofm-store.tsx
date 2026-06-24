@@ -131,7 +131,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       return;
     }
     const run = (async () => {
-    {
+      try {
       const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes] = await Promise.all([
         supabase.from("companies").select("*").maybeSingle(),
         supabase.from("profiles").select("id, full_name, email"),
