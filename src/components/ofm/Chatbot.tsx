@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, X, MessageCircle } from "lucide-react";
+import { Bot, Send, X, MessageCircle, Bookmark } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
