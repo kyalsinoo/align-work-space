@@ -11,14 +11,16 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
-  const { currentUser, loading } = useOFM();
+  const { currentUser, loading, hasSession } = useOFM();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !currentUser) navigate({ to: "/" });
-  }, [currentUser, loading, navigate]);
+    // Only redirect when there is genuinely no session. While a session exists
+    // but the profile is still loading, stay and show the loader.
+    if (!loading && !hasSession && !currentUser) navigate({ to: "/" });
+  }, [currentUser, loading, hasSession, navigate]);
 
-  if (loading) {
+  if (loading || (hasSession && !currentUser)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <p className="text-sm text-muted-foreground">Loading your workspace…</p>
