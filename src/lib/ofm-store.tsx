@@ -434,6 +434,24 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       setWifiPw(pw);
     },
+
+    saveEvent: async ({ eventType, date, time, title, description, imageUrl }) => {
+      if (!company || !currentUser) return;
+      const { error } = await supabase.from("events").insert({
+        company_id: company.id,
+        event_type: eventType,
+        event_date: date,
+        event_time: time,
+        title,
+        description,
+        image_url: imageUrl,
+        status: "published",
+        created_by: currentUser.id,
+        created_by_name: currentUser.name,
+      });
+      if (error) throw error;
+      await refresh(uid);
+    },
   };
 
   return <OFMContext.Provider value={value}>{children}</OFMContext.Provider>;
