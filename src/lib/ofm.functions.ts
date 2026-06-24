@@ -92,7 +92,7 @@ export const updateStaff = createServerFn({ method: "POST" })
     if (tErr) throw new Error(tErr.message);
     if (target.company_id !== companyId) throw new Error("Forbidden");
 
-    const profileUpdate: Record<string, string> = {};
+    const profileUpdate: { full_name?: string; email?: string } = {};
     if (data.name !== undefined) profileUpdate.full_name = data.name;
     if (data.email !== undefined) profileUpdate.email = data.email;
     if (Object.keys(profileUpdate).length) {
