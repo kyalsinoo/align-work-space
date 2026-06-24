@@ -11,13 +11,25 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
-  const { currentUser } = useOFM();
+  const { currentUser, loading, hasSession } = useOFM();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!currentUser) navigate({ to: "/" });
-  }, [currentUser, navigate]);
+    // Give auth state a grace period to hydrate before redirecting, so a
+    // freshly-signed-in user isn't bounced back during the state race.
+    if (loading || hasSession || currentUser) return;
+    const t = setTimeout(() => navigate({ to: "/" }), 1500);
+    return () => clearTimeout(t);
+  }, [currentUser, loading, hasSession, navigate]);
 
+
+  if (loading || (hasSession && !currentUser)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Loading your workspace…</p>
+      </div>
+    );
+  }
   if (!currentUser) return null;
   return <Dashboard />;
 }

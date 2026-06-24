@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import authBg from "@/assets/auth-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,8 +29,15 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { registerCompany, signIn } = useOFM();
+  const { registerCompany, signIn, hasSession, currentUser } = useOFM();
   const navigate = useNavigate();
+
+  // Once auth resolves (e.g. right after registration/sign-in), forward to the
+  // dashboard regardless of timing races between sign-in and state hydration.
+  useEffect(() => {
+    if (hasSession && currentUser) navigate({ to: "/dashboard" });
+  }, [hasSession, currentUser, navigate]);
+
 
   // register fields
   const [rName, setRName] = useState("");
@@ -71,10 +78,14 @@ function Landing() {
                   <div className="space-y-1"><Label>Password</Label><Input type="password" value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
                   <Button
                     className="w-full"
-                    onClick={() => {
-                      const u = signIn(sEmail, sPass);
-                      if (u) { toast.success(`Welcome, ${u.name}`); navigate({ to: "/dashboard" }); }
-                      else toast.error("Invalid credentials");
+                    onClick={async () => {
+                      try {
+                        const u = await signIn(sEmail, sPass);
+                        if (u) { toast.success(`Welcome, ${u.name}`); navigate({ to: "/dashboard" }); }
+                        else toast.error("Invalid credentials");
+                      } catch {
+                        toast.error("Invalid credentials");
+                      }
                     }}
                   >
                     Sign In
@@ -108,10 +119,14 @@ function Landing() {
                   <Button
                     className="w-full"
                     disabled={!rName || !rEmail || !rPass || !cName}
-                    onClick={() => {
-                      registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
-                      toast.success("Company registered");
-                      navigate({ to: "/dashboard" });
+                    onClick={async () => {
+                      try {
+                        await registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
+                        toast.success("Company registered");
+                        navigate({ to: "/dashboard" });
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Registration failed");
+                      }
                     }}
                   >
                     Register Company

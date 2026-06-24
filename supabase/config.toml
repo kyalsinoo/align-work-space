@@ -1,1 +1,7 @@
 project_id = "tnozvuemtvesgpubpeqv"
+
+[functions.register-company]
+verify_jwt = false
+
+[functions.manage-staff]
+verify_jwt = true
