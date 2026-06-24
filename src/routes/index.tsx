@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Building2, LogIn, ShieldCheck, Sparkles } from "lucide-react";
+import authBg from "@/assets/auth-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,38 +44,15 @@ function Landing() {
   const [sPass, setSPass] = useState("");
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Brand panel */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-hero p-12 text-primary-foreground lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
-            <Building2 className="h-6 w-6" />
-          </div>
-          <span className="text-xl font-bold">OFM System</span>
-        </div>
-        <div className="space-y-6">
-          <h1 className="text-4xl font-bold leading-tight">Run your office, intelligently.</h1>
-          <p className="max-w-md text-primary-foreground/80">
-            Role-based dashboards for Admins, Managers and Staff. Manage employees, tasks,
-            leave and attendance — with a bilingual AI assistant built in.
-          </p>
-          <div className="space-y-3">
-            {[
-              { icon: ShieldCheck, t: "Granular role access control" },
-              { icon: Sparkles, t: "AI assistant (English & မြန်မာ)" },
-              { icon: LogIn, t: "In-chatbot leave requests" },
-            ].map((f) => (
-              <div key={f.t} className="flex items-center gap-3 text-sm">
-                <f.icon className="h-5 w-5" /> {f.t}
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="text-xs text-primary-foreground/60">Demo: admin@ofm.com / admin123 · manager@ofm.com / manager123 · sales@ofm.com / sales123 · dev@ofm.com / dev123</p>
-      </div>
+    <div
+      className="relative flex min-h-screen items-center justify-center bg-cover bg-center p-6"
+      style={{ backgroundImage: `url(${authBg})` }}
+    >
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
 
       {/* Forms */}
-      <div className="flex items-center justify-center bg-background p-6">
+      <div className="relative z-10 flex items-center justify-center p-6">
+
         <div className="w-full max-w-md space-y-6">
           <div className="text-center lg:hidden">
             <h1 className="text-2xl font-bold">OFM System</h1>
