@@ -148,13 +148,14 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     }
     const run = (async () => {
       try {
-      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes] = await Promise.all([
+      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes, eventsRes] = await Promise.all([
         supabase.from("companies").select("*").maybeSingle(),
         supabase.from("profiles").select("id, full_name, email"),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("tasks").select("*").order("created_at", { ascending: false }),
         supabase.from("leaves").select("*").order("created_at", { ascending: false }),
         supabase.from("attendance").select("*").order("date", { ascending: false }),
+        supabase.from("events").select("*").order("event_date", { ascending: true }),
       ]);
 
       if (companyRes.data) {
