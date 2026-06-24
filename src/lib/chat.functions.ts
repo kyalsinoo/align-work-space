@@ -3,6 +3,7 @@ import { generateText, type ModelMessage } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { getDepartmentContext } from "./department-context";
+import { buildHolidayContext2026 } from "./myanmar-holidays-2026";
 
 const ChatInput = z.object({
   role: z.enum(["admin", "manager", "sales", "developer"]),
