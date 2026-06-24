@@ -11,13 +11,20 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
-  const { currentUser } = useOFM();
+  const { currentUser, loading } = useOFM();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!currentUser) navigate({ to: "/" });
-  }, [currentUser, navigate]);
+    if (!loading && !currentUser) navigate({ to: "/" });
+  }, [currentUser, loading, navigate]);
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Loading your workspace…</p>
+      </div>
+    );
+  }
   if (!currentUser) return null;
   return <Dashboard />;
 }
