@@ -645,3 +645,140 @@ function SavedInsightsView() {
     </div>
   );
 }
+
+/* ---------- Events ---------- */
+function EventCard({ ev }: { ev: { title: string; description: string; imageUrl: string; eventType: string; date: string; time: string } }) {
+  return (
+    <Card className="overflow-hidden">
+      {ev.imageUrl && (
+        <div className="aspect-video w-full overflow-hidden bg-muted">
+          <img src={ev.imageUrl} alt={ev.title} className="h-full w-full object-cover" loading="lazy" />
+        </div>
+      )}
+      <CardContent className="space-y-2 p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          {ev.eventType && <Badge variant="secondary">{ev.eventType}</Badge>}
+          <span className="text-xs text-muted-foreground">
+            {ev.date}{ev.time ? ` · ${ev.time}` : ""}
+          </span>
+        </div>
+        <h3 className="text-lg font-bold leading-tight">{ev.title}</h3>
+        <p className="text-sm text-muted-foreground">{ev.description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function EventsView({ role }: { role: Role }) {
+  const { events, company, saveEvent } = useOFM();
+  const isAdmin = role === "admin";
+  const [tab, setTab] = useState<"upcoming" | "ended">("upcoming");
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const published = events.filter((e) => e.status === "published");
+  const upcoming = published.filter((e) => e.date >= todayStr);
+  const ended = published.filter((e) => e.date < todayStr);
+
+  // Admin editor state
+  const [eventType, setEventType] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const runGenerate = useServerFn(generateEvent);
+
+  async function handleGenerate() {
+    if (!eventType) return;
+    setGenerating(true);
+    try {
+      const res = await runGenerate({ data: { eventType, date, time, companyType: company?.type ?? null } });
+      setTitle(res.title);
+      setDescription(res.description);
+      setImageUrl(res.imageUrl);
+      toast.success("Event preview generated");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Generation failed");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function handleAdd() {
+    if (!title || !date) {
+      toast.error("Add a title and date first");
+      return;
+    }
+    setSaving(true);
+    try {
+      await saveEvent({ eventType, date, time, title, description, imageUrl });
+      toast.success("Event published");
+      setEventType(""); setDate(""); setTime(""); setTitle(""); setDescription(""); setImageUrl("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to publish event");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      {isAdmin && (
+        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+          <Card>
+            <CardHeader><CardTitle className="text-base">Event Editor</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1"><Label>Event Type</Label><Input placeholder="e.g. Team Dinner, Product Launch" value={eventType} onChange={(e) => setEventType(e.target.value)} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1"><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+                <div className="space-y-1"><Label>Time</Label><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></div>
+              </div>
+              <Button className="w-full" variant="secondary" disabled={!eventType || generating} onClick={handleGenerate}>
+                {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                AI Generate Event
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base">Preview (editable)</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              {imageUrl ? (
+                <div className="aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                  <img src={imageUrl} alt="Event" className="h-full w-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+                  Generate an event to see the preview
+                </div>
+              )}
+              <div className="space-y-1"><Label>Title</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Event title" /></div>
+              <div className="space-y-1"><Label>Description</Label><Textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Event description" /></div>
+              <div className="space-y-1"><Label>Image URL</Label><Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." /></div>
+              <Button className="w-full" disabled={saving || !title || !date} onClick={handleAdd}>
+                {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                Add to Event
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          <Button variant={tab === "upcoming" ? "default" : "outline"} size="sm" onClick={() => setTab("upcoming")}>Upcoming Events</Button>
+          <Button variant={tab === "ended" ? "default" : "outline"} size="sm" onClick={() => setTab("ended")}>Ended Events</Button>
+        </div>
+        {(tab === "upcoming" ? upcoming : ended).length === 0 ? (
+          <Card><CardContent className="p-10 text-center text-sm text-muted-foreground">No {tab} events.</CardContent></Card>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {(tab === "upcoming" ? upcoming : ended).map((ev) => <EventCard key={ev.id} ev={ev} />)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
