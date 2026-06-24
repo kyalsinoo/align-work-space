@@ -35,6 +35,7 @@ export const sendChat = createServerFn({ method: "POST" })
     const system =
       ctx.systemPrompt +
       (facts.length ? `\n\nKnown office data:\n${facts.join("\n")}` : "") +
+      `\n\n${buildHolidayContext2026()}` +
       `\n\nKeep replies concise and chat-friendly (use markdown when helpful).`;
 
     const gateway = createLovableAiGatewayProvider(key);
