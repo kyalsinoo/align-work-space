@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          company_id: string
+          content: string
+          created_at: string
+          created_by: string | null
+          created_by_name: string
+          id: string
+          title: string
+        }
+        Insert: {
+          company_id: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string
+          id?: string
+          title?: string
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance: {
         Row: {
           check_in: string | null
@@ -60,6 +98,8 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          telegram_bot_token: string
+          telegram_chat_id: string
           type: string
           updated_at: string
           wifi_password: string
@@ -68,6 +108,8 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          telegram_bot_token?: string
+          telegram_chat_id?: string
           type?: string
           updated_at?: string
           wifi_password?: string
@@ -76,6 +118,8 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          telegram_bot_token?: string
+          telegram_chat_id?: string
           type?: string
           updated_at?: string
           wifi_password?: string

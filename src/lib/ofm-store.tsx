@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { broadcastAnnouncement } from "@/lib/announcement.functions";
 
 
 export type Role = "admin" | "manager" | "sales" | "developer";
@@ -81,6 +82,15 @@ export interface OfmEvent {
   status: string;
 }
 
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  createdBy: string;
+  createdByName: string;
+  createdAt: string;
+}
+
 interface OFMContextValue {
   loading: boolean;
   company: Company | null;
@@ -89,7 +99,10 @@ interface OFMContextValue {
   leaves: Leave[];
   attendance: Attendance[];
   events: OfmEvent[];
+  announcements: Announcement[];
   wifiPassword: string;
+  telegramBotToken: string;
+  telegramChatId: string;
   currentUser: User | null;
   hasSession: boolean;
   registerCompany: (data: { name: string; email: string; password: string; companyName: string; companyType: string }) => Promise<void>;
@@ -105,6 +118,8 @@ interface OFMContextValue {
   checkIn: () => Promise<void>;
   checkOut: () => Promise<void>;
   setWifiPassword: (pw: string) => Promise<void>;
+  saveTelegramSettings: (data: { botToken: string; chatId: string }) => Promise<void>;
+  publishAnnouncement: (data: { title: string; content: string }) => Promise<{ sent: boolean; reason?: string }>;
   saveEvent: (data: { eventType: string; date: string; time: string; title: string; description: string; imageUrl: string }) => Promise<void>;
 }
 
@@ -123,7 +138,10 @@ export function OFMProvider({ children }: { children: ReactNode }) {
   const [leaves, setLeaves] = useState<Leave[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [events, setEvents] = useState<OfmEvent[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [wifiPassword, setWifiPw] = useState("");
+  const [telegramBotToken, setTelegramBotToken] = useState("");
+  const [telegramChatId, setTelegramChatId] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const inFlight = useRef<Promise<void> | null>(null);
@@ -136,8 +154,11 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       setLeaves([]);
       setAttendance([]);
       setEvents([]);
+      setAnnouncements([]);
       setCurrentUser(null);
       setWifiPw("");
+      setTelegramBotToken("");
+      setTelegramChatId("");
       return;
     }
     // Dedupe concurrent refreshes (e.g. onAuthStateChange + explicit call) by
@@ -148,7 +169,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     }
     const run = (async () => {
       try {
-      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes, eventsRes] = await Promise.all([
+      const [companyRes, profilesRes, rolesRes, tasksRes, leavesRes, attRes, eventsRes, announcementsRes] = await Promise.all([
         supabase.from("companies").select("*").maybeSingle(),
         supabase.from("profiles").select("id, full_name, email"),
         supabase.from("user_roles").select("user_id, role"),
@@ -156,12 +177,26 @@ export function OFMProvider({ children }: { children: ReactNode }) {
         supabase.from("leaves").select("*").order("created_at", { ascending: false }),
         supabase.from("attendance").select("*").order("date", { ascending: false }),
         supabase.from("events").select("*").order("event_date", { ascending: true }),
+        supabase.from("announcements").select("*").order("created_at", { ascending: false }),
       ]);
 
       if (companyRes.data) {
         setCompany({ id: companyRes.data.id, name: companyRes.data.name, type: companyRes.data.type });
         setWifiPw(companyRes.data.wifi_password ?? "");
+        setTelegramBotToken(companyRes.data.telegram_bot_token ?? "");
+        setTelegramChatId(companyRes.data.telegram_chat_id ?? "");
       }
+
+      setAnnouncements(
+        (announcementsRes.data ?? []).map((a) => ({
+          id: a.id,
+          title: a.title,
+          content: a.content,
+          createdBy: a.created_by ?? "",
+          createdByName: a.created_by_name,
+          createdAt: a.created_at,
+        })),
+      );
 
       const roleMap = new Map<string, Role>();
       (rolesRes.data ?? []).forEach((r) => roleMap.set(r.user_id, r.role as Role));
@@ -271,7 +306,10 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     leaves,
     attendance,
     events,
+    announcements,
     wifiPassword,
+    telegramBotToken,
+    telegramChatId,
     currentUser,
 
     registerCompany: async ({ name, email, password, companyName, companyType }) => {
@@ -434,6 +472,33 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       setWifiPw(pw);
     },
+
+    saveTelegramSettings: async ({ botToken, chatId }) => {
+      if (!company) return;
+      const { error } = await supabase
+        .from("companies")
+        .update({ telegram_bot_token: botToken, telegram_chat_id: chatId })
+        .eq("id", company.id);
+      if (error) throw error;
+      setTelegramBotToken(botToken);
+      setTelegramChatId(chatId);
+    },
+
+    publishAnnouncement: async ({ title, content }) => {
+      if (!company || !currentUser) return { sent: false, reason: "no_company" };
+      const { error } = await supabase.from("announcements").insert({
+        company_id: company.id,
+        title,
+        content,
+        created_by: currentUser.id,
+        created_by_name: currentUser.name,
+      });
+      if (error) throw error;
+      await refresh(uid);
+      const result = await broadcastAnnouncement({ data: { title, content } });
+      return { sent: result.sent, reason: "reason" in result ? result.reason : undefined };
+    },
+
 
     saveEvent: async ({ eventType, date, time, title, description, imageUrl }) => {
       if (!company || !currentUser) return;
