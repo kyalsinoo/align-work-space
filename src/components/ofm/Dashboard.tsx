@@ -64,6 +64,7 @@ type ViewKey =
   | "tasks"
   | "leave"
   | "attendance"
+  | "events"
   | "insights"
   | "settings";
 
