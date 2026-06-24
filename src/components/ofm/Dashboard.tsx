@@ -94,6 +94,7 @@ export function Dashboard() {
       : []),
     { key: "attendance", label: "Attendance", icon: Clock },
     { key: "events" as ViewKey, label: "Events", icon: PartyPopper },
+    { key: "announcements" as ViewKey, label: "Announcements", icon: Megaphone },
     { key: "insights" as ViewKey, label: "Saved AI Insights", icon: Bookmark },
     ...(role === "admin" ? [{ key: "settings" as ViewKey, label: "Settings", icon: Settings }] : []),
   ];
