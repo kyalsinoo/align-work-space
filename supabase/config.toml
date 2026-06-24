@@ -1,8 +1,7 @@
 project_id = "tnozvuemtvesgpubpeqv"
 
-[auth]
-enable_signup = true
+[functions.register-company]
+verify_jwt = false
 
-[auth.email]
-enable_signup = true
-enable_confirmations = false
+[functions.manage-staff]
+verify_jwt = true
