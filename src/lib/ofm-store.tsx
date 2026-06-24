@@ -228,6 +228,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
 
   const value: OFMContextValue = {
     loading,
+    hasSession: !!session,
     company,
     users,
     tasks,
