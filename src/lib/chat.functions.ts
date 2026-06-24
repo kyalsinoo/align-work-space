@@ -3,6 +3,7 @@ import { generateText, type ModelMessage } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { getDepartmentContext } from "./department-context";
+import { buildHolidayContext2026 } from "./myanmar-holidays-2026";
 
 const ChatInput = z.object({
   role: z.enum(["admin", "manager", "sales", "developer"]),
@@ -34,6 +35,7 @@ export const sendChat = createServerFn({ method: "POST" })
     const system =
       ctx.systemPrompt +
       (facts.length ? `\n\nKnown office data:\n${facts.join("\n")}` : "") +
+      `\n\n${buildHolidayContext2026()}` +
       `\n\nKeep replies concise and chat-friendly (use markdown when helpful).`;
 
     const gateway = createLovableAiGatewayProvider(key);
