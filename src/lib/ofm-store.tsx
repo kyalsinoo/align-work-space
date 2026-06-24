@@ -305,7 +305,10 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     leaves,
     attendance,
     events,
+    announcements,
     wifiPassword,
+    telegramBotToken,
+    telegramChatId,
     currentUser,
 
     registerCompany: async ({ name, email, password, companyName, companyType }) => {
