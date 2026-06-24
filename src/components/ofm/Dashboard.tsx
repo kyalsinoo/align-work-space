@@ -686,15 +686,44 @@ function EventsView({ role }: { role: Role }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [details, setDetails] = useState("");
+  const [language, setLanguage] = useState<"en" | "my">("en");
+  const [uploadedImage, setUploadedImage] = useState("");
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const runGenerate = useServerFn(generateEvent);
+
+  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("Image too large (max 4MB)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const url = String(reader.result);
+      setUploadedImage(url);
+      setImageUrl(url);
+    };
+    reader.readAsDataURL(file);
+  }
 
   async function handleGenerate() {
     if (!eventType) return;
     setGenerating(true);
     try {
-      const res = await runGenerate({ data: { eventType, date, time, companyType: company?.type ?? null } });
+      const res = await runGenerate({
+        data: {
+          eventType,
+          date,
+          time,
+          companyType: company?.type ?? null,
+          details: details || undefined,
+          language,
+          imageDataUrl: uploadedImage || undefined,
+        },
+      });
       setTitle(res.title);
       setDescription(res.description);
       setImageUrl(res.imageUrl);
