@@ -13,6 +13,21 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Role = "admin" | "manager" | "sales" | "developer";
 
+// Supabase Edge Functions return non-2xx as a FunctionsHttpError whose JSON
+// body holds our { error } message. Pull it out for a useful toast.
+async function extractFnError(error: unknown, fallback: string): Promise<string> {
+  const ctx = (error as { context?: Response })?.context;
+  if (ctx && typeof ctx.json === "function") {
+    try {
+      const body = await ctx.json();
+      if (body?.error) return body.error as string;
+    } catch {
+      /* ignore */
+    }
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+
 export interface Company {
   id: string;
   name: string;
