@@ -270,6 +270,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
     tasks,
     leaves,
     attendance,
+    events,
     wifiPassword,
     currentUser,
 
