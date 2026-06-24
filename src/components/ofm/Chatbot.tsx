@@ -165,7 +165,7 @@ export function Chatbot({ variant = "staff" }: Props) {
                   }}
                 />
               ) : (
-                <div key={m.id} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={m.id} className={`flex flex-col ${m.from === "user" ? "items-end" : "items-start"}`}>
                   <div
                     className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                       m.from === "user"
@@ -181,6 +181,18 @@ export function Chatbot({ variant = "staff" }: Props) {
                       </div>
                     )}
                   </div>
+                  {m.from === "bot" && m.id !== "welcome" && (
+                    <button
+                      onClick={() => {
+                        saveInsight(m.text);
+                        toast.success("Saved to your AI Insights");
+                      }}
+                      className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-primary"
+                      aria-label="Save this reply"
+                    >
+                      <Bookmark className="h-3 w-3" /> Save
+                    </button>
+                  )}
                 </div>
               ),
             )}
