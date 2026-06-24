@@ -112,10 +112,14 @@ function Landing() {
                   <Button
                     className="w-full"
                     disabled={!rName || !rEmail || !rPass || !cName}
-                    onClick={() => {
-                      registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
-                      toast.success("Company registered");
-                      navigate({ to: "/dashboard" });
+                    onClick={async () => {
+                      try {
+                        await registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
+                        toast.success("Company registered");
+                        navigate({ to: "/dashboard" });
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Registration failed");
+                      }
                     }}
                   >
                     Register Company
