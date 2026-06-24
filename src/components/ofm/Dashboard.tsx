@@ -60,6 +60,7 @@ type ViewKey =
   | "tasks"
   | "leave"
   | "attendance"
+  | "insights"
   | "settings";
 
 const STAFF_ROLES: Role[] = ["manager", "sales", "developer"];
