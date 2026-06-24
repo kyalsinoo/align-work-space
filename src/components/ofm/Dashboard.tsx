@@ -50,6 +50,8 @@ import {
 } from "@/components/ui/table";
 import { Chatbot } from "@/components/ofm/Chatbot";
 import { useOFM, ROLE_LABELS, type Role, type User } from "@/lib/ofm-store";
+import { useSavedInsights } from "@/lib/saved-insights";
+import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
 type ViewKey =
