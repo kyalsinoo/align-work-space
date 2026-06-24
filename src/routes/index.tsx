@@ -81,59 +81,69 @@ function Landing() {
             <h1 className="text-2xl font-bold">OFM System</h1>
           </div>
 
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Company Registration <span className="text-xs font-normal text-muted-foreground">(Admin)</span></CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label>Name</Label><Input value={rName} onChange={(e) => setRName(e.target.value)} /></div>
-                <div className="space-y-1"><Label>Email</Label><Input type="email" value={rEmail} onChange={(e) => setREmail(e.target.value)} /></div>
-              </div>
-              <div className="space-y-1"><Label>Password</Label><Input type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} /></div>
-              <div className="space-y-1"><Label>Company Name</Label><Input value={cName} onChange={(e) => setCName(e.target.value)} /></div>
-              <div className="space-y-1">
-                <Label>Company Type</Label>
-                <Select value={cType} onValueChange={setCType}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Tech Startup">Tech Startup</SelectItem>
-                    <SelectItem value="Creative Agency">Creative Agency</SelectItem>
-                    <SelectItem value="Sales">Sales</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                className="w-full"
-                disabled={!rName || !rEmail || !rPass || !cName}
-                onClick={() => {
-                  registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
-                  toast.success("Company registered");
-                  navigate({ to: "/dashboard" });
-                }}
-              >
-                Register Company
-              </Button>
-            </CardContent>
-          </Card>
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Staff Sign-In</TabsTrigger>
+              <TabsTrigger value="register">Register Company</TabsTrigger>
+            </TabsList>
 
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Staff Sign-In</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-1"><Label>Email</Label><Input type="email" value={sEmail} onChange={(e) => setSEmail(e.target.value)} /></div>
-              <div className="space-y-1"><Label>Password</Label><Input type="password" value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={() => {
-                  const u = signIn(sEmail, sPass);
-                  if (u) { toast.success(`Welcome, ${u.name}`); navigate({ to: "/dashboard" }); }
-                  else toast.error("Invalid credentials");
-                }}
-              >
-                Sign In
-              </Button>
-            </CardContent>
-          </Card>
+            <TabsContent value="signin">
+              <Card>
+                <CardContent className="space-y-3 pt-6">
+                  <div className="space-y-1"><Label>Email</Label><Input type="email" value={sEmail} onChange={(e) => setSEmail(e.target.value)} /></div>
+                  <div className="space-y-1"><Label>Password</Label><Input type="password" value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      const u = signIn(sEmail, sPass);
+                      if (u) { toast.success(`Welcome, ${u.name}`); navigate({ to: "/dashboard" }); }
+                      else toast.error("Invalid credentials");
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="register">
+              <Card>
+                <CardContent className="space-y-3 pt-6">
+                  <p className="text-sm text-muted-foreground">Company Registration <span className="text-xs">(Admin)</span></p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1"><Label>Name</Label><Input value={rName} onChange={(e) => setRName(e.target.value)} /></div>
+                    <div className="space-y-1"><Label>Email</Label><Input type="email" value={rEmail} onChange={(e) => setREmail(e.target.value)} /></div>
+                  </div>
+                  <div className="space-y-1"><Label>Password</Label><Input type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} /></div>
+                  <div className="space-y-1"><Label>Company Name</Label><Input value={cName} onChange={(e) => setCName(e.target.value)} /></div>
+                  <div className="space-y-1">
+                    <Label>Company Type</Label>
+                    <Select value={cType} onValueChange={setCType}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Tech Startup">Tech Startup</SelectItem>
+                        <SelectItem value="Creative Agency">Creative Agency</SelectItem>
+                        <SelectItem value="Sales">Sales</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    className="w-full"
+                    disabled={!rName || !rEmail || !rPass || !cName}
+                    onClick={() => {
+                      registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
+                      toast.success("Company registered");
+                      navigate({ to: "/dashboard" });
+                    }}
+                  >
+                    Register Company
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
+
       </div>
     </div>
   );
