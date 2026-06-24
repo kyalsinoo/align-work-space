@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useOFM } from "@/lib/ofm-store";
 import { getDepartmentContext } from "@/lib/department-context";
 import { sendChat } from "@/lib/chat.functions";
+import { useSavedInsights } from "@/lib/saved-insights";
 import { toast } from "sonner";
 
 type Msg =
