@@ -472,6 +472,33 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       setWifiPw(pw);
     },
 
+    saveTelegramSettings: async ({ botToken, chatId }) => {
+      if (!company) return;
+      const { error } = await supabase
+        .from("companies")
+        .update({ telegram_bot_token: botToken, telegram_chat_id: chatId })
+        .eq("id", company.id);
+      if (error) throw error;
+      setTelegramBotToken(botToken);
+      setTelegramChatId(chatId);
+    },
+
+    publishAnnouncement: async ({ title, content }) => {
+      if (!company || !currentUser) return { sent: false, reason: "no_company" };
+      const { error } = await supabase.from("announcements").insert({
+        company_id: company.id,
+        title,
+        content,
+        created_by: currentUser.id,
+        created_by_name: currentUser.name,
+      });
+      if (error) throw error;
+      await refresh(uid);
+      const result = await broadcastAnnouncement({ data: { title, content } });
+      return { sent: result.sent, reason: "reason" in result ? result.reason : undefined };
+    },
+
+
     saveEvent: async ({ eventType, date, time, title, description, imageUrl }) => {
       if (!company || !currentUser) return;
       const { error } = await supabase.from("events").insert({
