@@ -435,8 +435,8 @@ function TasksView({ role }: { role: Role }) {
 
   const availableRoles = ASSIGN_ROLES;
 
-  function toggle(r: Role) {
-    setRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
+  function selectRole(r: Role) {
+    setRoles([r]);
   }
 
   // Staff: read-only list of all tasks; they can only End tasks assigned to
