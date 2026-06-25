@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RecruitmentRankingRouteImport } from './routes/recruitment-ranking'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RecruitmentRankingRoute = RecruitmentRankingRouteImport.update({
+  id: '/recruitment-ranking',
+  path: '/recruitment-ranking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/ai-assistant': typeof AiAssistantRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/recruitment-ranking': typeof RecruitmentRankingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-assistant': typeof AiAssistantRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/recruitment-ranking': typeof RecruitmentRankingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,25 @@ export interface FileRoutesById {
   '/ai-assistant': typeof AiAssistantRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/recruitment-ranking': typeof RecruitmentRankingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ai-assistant' | '/auth' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/ai-assistant'
+    | '/auth'
+    | '/dashboard'
+    | '/recruitment-ranking'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ai-assistant' | '/auth' | '/dashboard'
-  id: '__root__' | '/' | '/ai-assistant' | '/auth' | '/dashboard'
+  to: '/' | '/ai-assistant' | '/auth' | '/dashboard' | '/recruitment-ranking'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-assistant'
+    | '/auth'
+    | '/dashboard'
+    | '/recruitment-ranking'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +87,18 @@ export interface RootRouteChildren {
   AiAssistantRoute: typeof AiAssistantRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  RecruitmentRankingRoute: typeof RecruitmentRankingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/recruitment-ranking': {
+      id: '/recruitment-ranking'
+      path: '/recruitment-ranking'
+      fullPath: '/recruitment-ranking'
+      preLoaderRoute: typeof RecruitmentRankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -107,6 +135,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiAssistantRoute: AiAssistantRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  RecruitmentRankingRoute: RecruitmentRankingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
