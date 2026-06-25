@@ -136,6 +136,10 @@ function AuthPage() {
                     className="w-full"
                     disabled={!rName || !rEmail || !rPass || !cName}
                     onClick={async () => {
+                      if (!EMAIL_REGEX.test(rEmail)) {
+                        toast.error("Enter a valid email like name@gmail.com");
+                        return;
+                      }
                       if (rPass.length < 8) {
                         toast.error("Password must be at least 8 characters");
                         return;
