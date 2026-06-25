@@ -48,6 +48,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Orbitron", "Plus Jakarta Sans", ui-sans-serif, sans-serif;
+  --color-display: var(--font-display);
 }
 
 :root {
