@@ -139,6 +139,10 @@
   }
 }
 
+@utility text-brand-foreground {
+  color: oklch(0.99 0.005 240);
+}
+
 @utility bg-gradient-brand {
   background-image: var(--gradient-brand);
 }
