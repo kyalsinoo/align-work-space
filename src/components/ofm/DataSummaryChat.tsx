@@ -89,6 +89,27 @@ export function DataSummaryChat({ role }: { role: Role }) {
         </Badge>
       </div>
 
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-muted-foreground">Language:</span>
+        <button
+          onClick={() => setLanguage("en")}
+          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+            language === "en" ? "bg-primary text-primary-foreground" : "border border-border bg-background text-foreground hover:bg-accent"
+          }`}
+        >
+          English
+        </button>
+        <button
+          onClick={() => setLanguage("my")}
+          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+            language === "my" ? "bg-primary text-primary-foreground" : "border border-border bg-background text-foreground hover:bg-accent"
+          }`}
+        >
+          မြန်မာ
+        </button>
+      </div>
+
+
       <Card className="flex h-[60vh] flex-col overflow-hidden">
         <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
           {msgs.map((m) => (
