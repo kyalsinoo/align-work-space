@@ -370,6 +370,9 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       });
       if (fnError) {
         const msg = await extractFnError(fnError, "Registration failed");
+        if (/already.*registered|already.*exists/i.test(msg)) {
+          throw new Error("This email is already registered. Please sign in instead or use a different email.");
+        }
         throw new Error(msg);
       }
 
