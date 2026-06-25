@@ -398,8 +398,9 @@ function EmployeesView({ role }: { role: Role }) {
   );
 }
 
-function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d: { name: string; email: string; password: string; role: Role }) => void; trigger: React.ReactNode }) {
+function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d: { name: string; email: string; password: string; role: Role }) => void | Promise<void>; trigger: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [name, setName] = useState(initial?.name ?? "");
   const [email, setEmail] = useState(initial?.email ?? "");
   const [password, setPassword] = useState(initial?.password ?? "");
