@@ -155,7 +155,7 @@ interface OFMContextValue {
   saveCompanyLocation: (data: { latitude: number; longitude: number; geofenceRadius: number }) => Promise<void>;
   setWifiPassword: (pw: string) => Promise<void>;
   saveTelegramSettings: (data: { botToken: string; chatId: string }) => Promise<void>;
-  publishAnnouncement: (data: { title: string; content: string }) => Promise<{ sent: boolean; reason?: string }>;
+  publishAnnouncement: (data: { title: string; content: string }) => Promise<{ sent: boolean; reason?: string; email?: { sent: boolean; reason?: string; count: number }; telegram?: { sent: boolean; reason?: string } }>;
   saveEvent: (data: { eventType: string; date: string; time: string; title: string; description: string; imageUrl: string }) => Promise<void>;
 }
 
