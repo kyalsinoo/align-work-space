@@ -184,16 +184,16 @@
 
 @utility cyber-rings {
   position: relative;
-}
-@utility cyber-rings::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle, transparent 38%, oklch(0.82 0.15 210 / 0.08) 39%, transparent 41%),
-    radial-gradient(circle, transparent 58%, oklch(0.7 0.16 195 / 0.06) 59%, transparent 61%);
-  background-size: 520px 520px, 760px 760px;
-  background-position: 80% -10%, 80% -10%;
-  background-repeat: no-repeat;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle, transparent 38%, oklch(0.82 0.15 210 / 0.08) 39%, transparent 41%),
+      radial-gradient(circle, transparent 58%, oklch(0.7 0.16 195 / 0.06) 59%, transparent 61%);
+    background-size: 520px 520px, 760px 760px;
+    background-position: 80% -10%, 80% -10%;
+    background-repeat: no-repeat;
+  }
 }
