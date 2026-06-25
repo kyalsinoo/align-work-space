@@ -645,18 +645,6 @@ function RecruitmentPage() {
                   </div>
                 </SortableContext>
               </DndContext>
-
-              <Button onClick={runAnalysis} disabled={running} className="w-full">
-                {running ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing…
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-4 w-4" /> Run AI Filtering &amp; Ranking
-                  </>
-                )}
-              </Button>
             </CardContent>
           </Card>
         </div>
