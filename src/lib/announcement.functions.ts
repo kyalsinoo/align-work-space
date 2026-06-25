@@ -29,7 +29,7 @@ async function sendGmailToRecipients(
   recipients: string[],
   subject: string,
   bodyText: string,
-): Promise<{ sent: boolean; reason?: string; detail?: string }> {
+): Promise<{ sent: boolean; reason?: string; detail?: string; count?: number }> {
   const lovableKey = process.env.LOVABLE_API_KEY;
   const gmailKey = process.env.GOOGLE_MAIL_API_KEY;
   if (!lovableKey || !gmailKey) {
