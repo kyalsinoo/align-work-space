@@ -51,6 +51,7 @@ export function Chatbot({ variant = "staff" }: Props) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [language, setLanguage] = useState<"en" | "my">("en");
   const [msgs, setMsgs] = useState<Msg[]>([
     {
       id: "welcome",
