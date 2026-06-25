@@ -172,11 +172,22 @@ function RecruitmentPage() {
     { name: string; fileName: string; fileData: string }[]
   >([]);
 
+  // Candidate UX: track newly added card for highlight/focus and pending delete.
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const newCardRef = useRef<HTMLInputElement>(null);
+  const pendingFocusRef = useRef(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
   // Chat
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const chatScroll = useRef<HTMLDivElement>(null);
+
 
   // Auth guard — admin (owner) only.
   useEffect(() => {
