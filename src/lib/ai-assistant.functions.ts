@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 const AssistantInput = z.object({
+  language: z.enum(["en", "my"]).optional(),
   messages: z
     .array(
       z.object({
