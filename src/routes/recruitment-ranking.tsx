@@ -198,6 +198,41 @@ function RecruitmentPage() {
     setCandidates((p) => p.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
   }
 
+  function handleFile(id: string, file: File | null) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File is too large (max 10MB).");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCandidates((p) =>
+        p.map((c) =>
+          c.id === id
+            ? {
+                ...c,
+                fileName: file.name,
+                fileData: reader.result as string,
+                mimeType: file.type || "application/octet-stream",
+              }
+            : c,
+        ),
+      );
+    };
+    reader.onerror = () => toast.error("Could not read the file.");
+    reader.readAsDataURL(file);
+  }
+
+  function clearFile(id: string) {
+    setCandidates((p) =>
+      p.map((c) =>
+        c.id === id
+          ? { ...c, fileName: undefined, fileData: undefined, mimeType: undefined }
+          : c,
+      ),
+    );
+  }
+
   async function runAnalysis() {
     if (!title.trim()) {
       toast.error("Please enter a job title.");
