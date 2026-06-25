@@ -92,7 +92,7 @@ function AIAssistantPage() {
 
     setThinking(true);
     try {
-      const res = await ask({ data: { messages: history } });
+      const res = await ask({ data: { language, messages: history } });
       setMsgs((p) => [...p, { id: crypto.randomUUID(), from: "bot", text: res.text, at: Date.now() }]);
     } catch {
       toast.error("Assistant is unavailable right now. Please try again.");
