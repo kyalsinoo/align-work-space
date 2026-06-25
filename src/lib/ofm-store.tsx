@@ -91,6 +91,9 @@ export interface Leave {
   reason: string;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
+  startDate: string | null;
+  endDate: string | null;
+  days: number | null;
 }
 
 export interface Attendance {
