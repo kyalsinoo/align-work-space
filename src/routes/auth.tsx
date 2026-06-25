@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import authBg from "@/assets/auth-bg.jpg";
+import officeHubLogo from "@/assets/officehub-logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,9 @@ function AuthPage() {
       <div className="relative z-10 flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center">
-            <Link to="/" className="text-2xl font-bold">OFM System</Link>
+            <Link to="/" className="inline-flex items-center justify-center">
+              <img src={officeHubLogo} alt="OfficeHub" className="h-14 w-auto" />
+            </Link>
             <p className="mt-1 text-sm text-muted-foreground">
               <Link to="/" className="hover:underline">← Back to home</Link>
             </p>
