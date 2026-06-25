@@ -55,6 +55,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Chatbot } from "@/components/ofm/Chatbot";
+import { DataSummaryChat } from "@/components/ofm/DataSummaryChat";
 import { useOFM, ROLE_LABELS, getLeaveUsage, LEAVE_LIMIT_DAYS, type Role, type User } from "@/lib/ofm-store";
 import { useSavedInsights } from "@/lib/saved-insights";
 import { generateEvent } from "@/lib/event.functions";
