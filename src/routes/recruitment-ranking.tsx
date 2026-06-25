@@ -235,11 +235,16 @@ function RecruitmentPage() {
   }
 
   function addCandidate() {
-    setCandidates((p) => [...p, { id: crypto.randomUUID(), name: "", resume: "" }]);
+    const id = crypto.randomUUID();
+    setCandidates((p) => [{ id, name: "", resume: "" }, ...p]);
+    setHighlightId(id);
+    pendingFocusRef.current = true;
+    setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 1600);
   }
   function removeCandidate(id: string) {
     setCandidates((p) => (p.length > 1 ? p.filter((c) => c.id !== id) : p));
   }
+
   function updateCandidate(id: string, field: "name" | "resume", value: string) {
     setCandidates((p) => p.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
   }
