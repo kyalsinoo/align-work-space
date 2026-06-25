@@ -99,8 +99,10 @@ export const summarizeData = createServerFn({ method: "POST" })
     // ----- Build the JSON context per role -----
     let dataContext: Record<string, unknown>;
 
+    const monthStartDate = monthStart.slice(0, 10);
+
     if (isElevated) {
-      const [endedTasks, leavesThisMonth, onLeave] = await Promise.all([
+      const [endedTasks, leavesThisMonth, onLeave, attendanceThisMonth] = await Promise.all([
         supabase
           .from("tasks")
           .select("title, roles, created_by_name, created_at")
@@ -114,6 +116,11 @@ export const summarizeData = createServerFn({ method: "POST" })
           .from("leaves")
           .select("name, reason, status")
           .eq("status", "approved"),
+        supabase
+          .from("attendance")
+          .select("user_name, date, check_in, check_out")
+          .gte("date", monthStartDate)
+          .order("date", { ascending: false }),
       ]);
 
       // Who applied for the most leave this month.
@@ -139,6 +146,15 @@ export const summarizeData = createServerFn({ method: "POST" })
         currentlyOnLeave: (onLeave.data ?? []).map((l) => l.name),
         leaveRequestsThisMonth: leavesThisMonth.data ?? [],
         topLeaveApplicantsThisMonth: topApplicants,
+        attendanceThisMonth: (attendanceThisMonth.data ?? []).map((a) => ({
+          name: a.user_name,
+          date: a.date,
+          checkIn: a.check_in,
+          checkOut: a.check_out,
+        })),
+        attendanceTodayCheckedIn: (attendanceThisMonth.data ?? [])
+          .filter((a) => a.date === new Date().toISOString().slice(0, 10) && a.check_in)
+          .map((a) => a.user_name),
       };
     } else {
       // STAFF: strictly personal data only.
