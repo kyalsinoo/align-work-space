@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import authBg from "@/assets/auth-bg.jpg";
 import officeHubLogo from "@/assets/officehub-logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Check,
 } from "lucide-react";
 import { useOFM } from "@/lib/ofm-store";
 
@@ -39,9 +39,9 @@ const services = [
 ];
 
 const packages = [
-  { name: "Bronze", price: "Free", features: ["Up to 5 staff", "Tasks & attendance", "Basic AI chatbot"], highlight: false },
-  { name: "Silver Plan", price: "$29/mo", features: ["Up to 50 staff", "Leave & events", "AI data summaries", "Announcements"], highlight: true },
-  { name: "Golden Plan", price: "Custom", features: ["Unlimited staff", "Telegram broadcast", "Priority support", "Custom roles"], highlight: false },
+  { name: "Starter", price: "Free", features: ["Up to 5 staff", "Tasks & attendance", "Basic AI chatbot"], highlight: false },
+  { name: "Business", price: "$29/mo", features: ["Up to 50 staff", "Leave & events", "AI data summaries", "Announcements"], highlight: true },
+  { name: "Enterprise", price: "Custom", features: ["Unlimited staff", "Telegram broadcast", "Priority support", "Custom roles"], highlight: false },
 ];
 
 function Landing() {
@@ -53,42 +53,43 @@ function Landing() {
   }, [hasSession, currentUser, navigate]);
 
   return (
-    <div className="cyber-bg min-h-screen text-foreground">
+    <div className="min-h-screen bg-background">
       {/* Nav */}
-      <header className="sticky top-0 z-30 border-b border-primary/20 bg-background/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <img src={officeHubLogo} alt="OfficeHub" className="h-9 w-auto drop-shadow-[0_0_8px_var(--color-primary)]" />
+          <img src={officeHubLogo} alt="OfficeHub" className="h-9 w-auto" />
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#services" className="transition-colors hover:text-primary">Our Services</a>
-            <a href="#about" className="transition-colors hover:text-primary">About</a>
-            <a href="#packages" className="transition-colors hover:text-primary">Packages</a>
-            <a href="#contact" className="transition-colors hover:text-primary">Contact Us</a>
+            <a href="#services" className="hover:text-foreground">Our Services</a>
+            <a href="#about" className="hover:text-foreground">About</a>
+            <a href="#packages" className="hover:text-foreground">Packages</a>
+            <a href="#contact" className="hover:text-foreground">Contact Us</a>
           </nav>
-          <Button asChild size="sm" className="shadow-glow">
+          <Button asChild size="sm">
             <Link to="/auth">Start Your Project</Link>
           </Button>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="cyber-rings relative flex min-h-[72vh] items-center overflow-hidden">
+      <section
+        className="relative flex min-h-[70vh] items-center bg-cover bg-center"
+        style={{ backgroundImage: `url(${authBg})` }}
+      >
+        <div className="absolute inset-0 bg-background/75" />
         <div className="relative z-10 mx-auto max-w-6xl px-6 py-24">
           <div className="max-w-2xl space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Next-gen workspace
-            </span>
-            <h1 className="font-display text-4xl font-extrabold leading-tight text-foreground text-glow md:text-6xl">
-              Tecfy Attendance
+            <h1 className="text-4xl font-bold leading-tight md:text-5xl">
+              Run your office, intelligently.
             </h1>
             <p className="text-lg text-muted-foreground">
               OfficeHub brings tasks, leave, attendance, events and an AI assistant into one
-              high-tech workspace — with role-based access for admins, managers and staff.
+              clean workspace — with role-based access for admins, managers and staff.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="shadow-glow">
+              <Button asChild size="lg">
                 <Link to="/auth">Start Your Project</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10">
+              <Button asChild size="lg" variant="outline">
                 <a href="#services">Explore Services</a>
               </Button>
             </div>
@@ -99,17 +100,14 @@ function Landing() {
       {/* Services */}
       <section id="services" className="mx-auto max-w-6xl px-6 py-20">
         <div className="mb-12 text-center">
-          <h2 className="font-display text-3xl font-bold text-glow">Our Services</h2>
+          <h2 className="text-3xl font-bold">Our Services</h2>
           <p className="mt-2 text-muted-foreground">Everything your team needs to stay organized.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => (
-            <Card
-              key={s.title}
-              className="border-primary/20 bg-card/60 backdrop-blur transition-all hover:border-primary/50 hover:shadow-glow"
-            >
+            <Card key={s.title}>
               <CardHeader>
-                <s.icon className="h-8 w-8 text-primary drop-shadow-[0_0_6px_var(--color-primary)]" />
+                <s.icon className="h-8 w-8 text-primary" />
                 <CardTitle className="text-lg">{s.title}</CardTitle>
               </CardHeader>
               <CardContent>
@@ -121,10 +119,10 @@ function Landing() {
       </section>
 
       {/* About */}
-      <section id="about" className="border-y border-primary/15 bg-card/30">
+      <section id="about" className="border-y bg-muted/40">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 md:grid-cols-2">
           <div className="space-y-4">
-            <h2 className="font-display text-3xl font-bold text-glow">About OfficeHub</h2>
+            <h2 className="text-3xl font-bold">About OfficeHub</h2>
             <p className="text-muted-foreground">
               OfficeHub (Office Management System) is built for modern teams who want a single,
               intelligent platform to handle daily operations. From staff onboarding to
@@ -142,9 +140,9 @@ function Landing() {
               { k: "100%", v: "Secure RBAC" },
               { k: "24/7", v: "Always available" },
             ].map((stat) => (
-              <Card key={stat.v} className="border-primary/20 bg-card/60 backdrop-blur">
+              <Card key={stat.v}>
                 <CardContent className="p-6 text-center">
-                  <div className="font-display text-3xl font-bold text-primary text-glow">{stat.k}</div>
+                  <div className="text-3xl font-bold text-primary">{stat.k}</div>
                   <div className="mt-1 text-sm text-muted-foreground">{stat.v}</div>
                 </CardContent>
               </Card>
@@ -156,41 +154,30 @@ function Landing() {
       {/* Packages */}
       <section id="packages" className="mx-auto max-w-6xl px-6 py-20">
         <div className="mb-12 text-center">
-          <h2 className="font-display text-3xl font-bold text-glow">Packages</h2>
+          <h2 className="text-3xl font-bold">Packages</h2>
           <p className="mt-2 text-muted-foreground">Choose the plan that fits your team.</p>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           {packages.map((p) => (
-            <Card
-              key={p.name}
-              className={
-                p.highlight
-                  ? "border-primary/60 bg-card/70 shadow-glow backdrop-blur"
-                  : "border-primary/20 bg-card/50 backdrop-blur"
-              }
-            >
+            <Card key={p.name} className={p.highlight ? "border-primary shadow-lg" : ""}>
               <CardHeader>
                 {p.highlight && (
-                  <span className="mb-2 inline-block w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary-foreground shadow-glow">
+                  <span className="mb-2 inline-block w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                     Most popular
                   </span>
                 )}
-                <CardTitle className="font-display text-xl text-glow">{p.name}</CardTitle>
-                <div className="font-display text-3xl font-bold text-primary">{p.price}</div>
+                <CardTitle className="text-xl">{p.name}</CardTitle>
+                <div className="text-3xl font-bold">{p.price}</div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <ul className="space-y-2 text-sm text-foreground/90">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary drop-shadow-[0_0_5px_var(--color-primary)]" /> {f}
+                      <CheckSquare className="h-4 w-4 text-primary" /> {f}
                     </li>
                   ))}
                 </ul>
-                <Button
-                  asChild
-                  className={p.highlight ? "w-full shadow-glow" : "w-full"}
-                  variant={p.highlight ? "default" : "outline"}
-                >
+                <Button asChild className="w-full" variant={p.highlight ? "default" : "outline"}>
                   <Link to="/auth">Start Your Project</Link>
                 </Button>
               </CardContent>
@@ -200,13 +187,13 @@ function Landing() {
       </section>
 
       {/* Start your project CTA */}
-      <section className="cyber-rings relative border-y border-primary/15 bg-primary/5">
-        <div className="relative z-10 mx-auto max-w-4xl px-6 py-16 text-center">
-          <h2 className="font-display text-3xl font-bold text-glow">Ready to get started?</h2>
+      <section className="border-y bg-primary/5">
+        <div className="mx-auto max-w-4xl px-6 py-16 text-center">
+          <h2 className="text-3xl font-bold">Ready to get started?</h2>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
             Register your company or sign in as staff to access your dashboard.
           </p>
-          <Button asChild size="lg" className="mt-6 shadow-glow">
+          <Button asChild size="lg" className="mt-6">
             <Link to="/auth">Start Your Project</Link>
           </Button>
         </div>
@@ -215,7 +202,7 @@ function Landing() {
       {/* Contact */}
       <section id="contact" className="mx-auto max-w-6xl px-6 py-20">
         <div className="mb-12 text-center">
-          <h2 className="font-display text-3xl font-bold text-glow">Contact Us</h2>
+          <h2 className="text-3xl font-bold">Contact Us</h2>
           <p className="mt-2 text-muted-foreground">We'd love to hear from you.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-3">
@@ -224,9 +211,9 @@ function Landing() {
             { icon: Phone, label: "Phone", value: "+95 9 123 456 789" },
             { icon: MapPin, label: "Address", value: "Yangon, Myanmar" },
           ].map((c) => (
-            <Card key={c.label} className="border-primary/20 bg-card/60 backdrop-blur transition-all hover:border-primary/50 hover:shadow-glow">
+            <Card key={c.label}>
               <CardContent className="flex flex-col items-center gap-2 p-8 text-center">
-                <c.icon className="h-8 w-8 text-primary drop-shadow-[0_0_6px_var(--color-primary)]" />
+                <c.icon className="h-8 w-8 text-primary" />
                 <div className="font-medium">{c.label}</div>
                 <div className="text-sm text-muted-foreground">{c.value}</div>
               </CardContent>
@@ -236,10 +223,10 @@ function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-primary/15">
+      <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-muted-foreground md:flex-row">
           <span>© {new Date().getFullYear()} OfficeHub Office Management System</span>
-          <Link to="/auth" className="transition-colors hover:text-primary">Sign In</Link>
+          <Link to="/auth" className="hover:text-foreground">Sign In</Link>
         </div>
       </footer>
     </div>
