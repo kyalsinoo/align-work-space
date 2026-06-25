@@ -51,7 +51,6 @@ export function Chatbot({ variant = "staff" }: Props) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
-  const [language, setLanguage] = useState<"en" | "my">("en");
   const [msgs, setMsgs] = useState<Msg[]>([
     {
       id: "welcome",
@@ -114,7 +113,6 @@ export function Chatbot({ variant = "staff" }: Props) {
           companyType: company?.type ?? null,
           userName: currentUser.name,
           wifiPassword,
-          language,
           messages: history,
         },
       });
@@ -153,28 +151,6 @@ export function Chatbot({ variant = "staff" }: Props) {
               <X className="h-5 w-5" />
             </button>
           </div>
-
-          <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-3 py-2">
-            <span className="text-[11px] text-muted-foreground">Language:</span>
-            <button
-              onClick={() => setLanguage("en")}
-              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${
-                language === "en" ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-accent"
-              }`}
-            >
-              English
-            </button>
-            <button
-              onClick={() => setLanguage("my")}
-              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${
-                language === "my" ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-accent"
-              }`}
-            >
-              မြန်မာ
-            </button>
-          </div>
-
-
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
             {msgs.map((m) =>
