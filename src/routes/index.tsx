@@ -16,6 +16,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { useOFM } from "@/lib/ofm-store";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
