@@ -103,7 +103,13 @@ function AuthPage() {
                     <div className="space-y-1"><Label>Full Name</Label><Input placeholder="Full name" value={rName} onChange={(e) => setRName(e.target.value)} /></div>
                     <div className="space-y-1"><Label>Email</Label><Input type="email" value={rEmail} onChange={(e) => setREmail(e.target.value)} /></div>
                   </div>
-                  <div className="space-y-1"><Label>Password</Label><Input type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} /></div>
+                  <div className="space-y-1">
+                    <Label>Password</Label>
+                    <Input type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} />
+                    <p className={`text-xs ${rPass && rPass.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
+                      Password must be at least 8 characters
+                    </p>
+                  </div>
                   <div className="space-y-1"><Label>Company Name</Label><Input value={cName} onChange={(e) => setCName(e.target.value)} /></div>
                   <div className="space-y-1">
                     <Label>Company Type</Label>
@@ -121,6 +127,10 @@ function AuthPage() {
                     className="w-full"
                     disabled={!rName || !rEmail || !rPass || !cName}
                     onClick={async () => {
+                      if (rPass.length < 8) {
+                        toast.error("Password must be at least 8 characters");
+                        return;
+                      }
                       try {
                         await registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
                         toast.success("Company registered");

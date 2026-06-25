@@ -404,7 +404,13 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
         <div className="space-y-3">
           <div className="space-y-1"><Label>Full Name</Label><Input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} /></div>
           <div className="space-y-1"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-          <div className="space-y-1"><Label>Password</Label><Input value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+          <div className="space-y-1">
+            <Label>Password</Label>
+            <Input value={password} onChange={(e) => setPassword(e.target.value)} />
+            <p className={`text-xs ${password && password.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
+              Password must be at least 8 characters
+            </p>
+          </div>
           <div className="space-y-1">
             <Label>Role</Label>
             <Select value={role} onValueChange={(v) => setRole(v as Role)}>
@@ -418,7 +424,10 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
         <DialogFooter>
           <Button
             disabled={!name || !email || !password}
-            onClick={() => { onSave({ name, email, password, role }); setOpen(false); }}
+            onClick={() => {
+              if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+              onSave({ name, email, password, role }); setOpen(false);
+            }}
           >
             Save
           </Button>
