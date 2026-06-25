@@ -195,6 +195,12 @@ export const summarizeData = createServerFn({ method: "POST" })
         myPendingLeaveRequestsThisMonth: (myLeaves.data ?? []).filter(
           (l) => l.status === "pending",
         ).length,
+        myAttendanceThisMonth: (myAttendance.data ?? []).map((a) => ({
+          date: a.date,
+          checkIn: a.check_in,
+          checkOut: a.check_out,
+        })),
+        myAttendanceDaysThisMonth: (myAttendance.data ?? []).filter((a) => a.check_in).length,
       };
     }
 
