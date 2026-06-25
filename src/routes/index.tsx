@@ -16,6 +16,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { useOFM } from "@/lib/ofm-store";
+import { HeroAnimation } from "@/components/ofm/HeroAnimation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
@@ -80,7 +81,7 @@ function Landing() {
         style={{ backgroundImage: `url(${authBg})` }}
       >
         <div className="absolute inset-0 bg-background/75" />
-        <div className="relative z-10 mx-auto max-w-6xl px-6 py-24">
+        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-6 py-24 md:grid-cols-2">
           <div className="max-w-2xl space-y-6">
             <h1 className="text-4xl font-bold leading-tight md:text-5xl">
               Run your office, intelligently.
@@ -97,6 +98,9 @@ function Landing() {
                 <a href="#services">Explore Services</a>
               </Button>
             </div>
+          </div>
+          <div className="hidden md:block">
+            <HeroAnimation />
           </div>
         </div>
       </section>
