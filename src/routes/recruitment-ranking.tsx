@@ -12,6 +12,8 @@ import {
   Plus,
   Trash2,
   ShieldCheck,
+  Upload,
+  FileText,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useServerFn } from "@tanstack/react-start";
