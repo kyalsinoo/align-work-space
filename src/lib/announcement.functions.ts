@@ -92,7 +92,17 @@ export const broadcastAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => BroadcastInput.parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+
+    // Server-side role enforcement: only admins/managers may broadcast.
+    const { data: roleRows } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const roles = (roleRows ?? []).map((r) => r.role as string);
+    if (!roles.includes("admin") && !roles.includes("manager")) {
+      throw new Error("Forbidden: only admins and managers can broadcast announcements.");
+    }
 
     const { data: company, error } = await supabase
       .from("companies")

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const EventInput = z.object({
   eventType: z.string().min(1),
@@ -10,12 +11,25 @@ const EventInput = z.object({
   companyType: z.string().nullable().optional(),
   details: z.string().optional(),
   language: z.enum(["en", "my"]).optional(),
-  imageDataUrl: z.string().optional(),
+  imageDataUrl: z.string().max(8_000_000).optional(),
 });
 
 export const generateEvent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => EventInput.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("is_admin");
+    if (!isAdmin) {
+      const { data: roleRows } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const roles = (roleRows ?? []).map((r) => r.role as string);
+      if (!roles.includes("admin") && !roles.includes("manager")) {
+        throw new Error("Forbidden: only admins and managers can generate events.");
+      }
+    }
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
