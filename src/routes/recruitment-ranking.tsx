@@ -593,17 +593,31 @@ function RecruitmentPage() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
+            <CardHeader className="sticky top-[57px] z-10 bg-card border-b border-border rounded-t-xl">
+              <div className="flex items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-base">Candidates</CardTitle>
                   <CardDescription>Upload each applicant's resume/CV (image or document).</CardDescription>
                 </div>
-                <Button size="sm" variant="outline" onClick={addCandidate}>
-                  <Plus className="mr-1 h-4 w-4" /> Add
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={addCandidate}>
+                    <Plus className="mr-1 h-4 w-4" /> Add
+                  </Button>
+                  <Button size="sm" onClick={runAnalysis} disabled={running}>
+                    {running ? (
+                      <>
+                        <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Analyzing…
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-1 h-4 w-4" /> Run
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardHeader>
+
             <CardContent className="space-y-4">
               <DndContext
                 sensors={sensors}
