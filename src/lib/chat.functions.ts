@@ -10,6 +10,7 @@ const ChatInput = z.object({
   companyType: z.string().nullable().optional(),
   userName: z.string().optional(),
   wifiPassword: z.string().optional(),
+  language: z.enum(["en", "my"]).optional(),
   messages: z
     .array(
       z.object({
