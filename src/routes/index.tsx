@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import authBg from "@/assets/auth-bg.jpg";
+import officeHubLogo from "@/assets/officehub-logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,9 +20,9 @@ import { useOFM } from "@/lib/ofm-store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "OFM — Smart Office Management System" },
-      { name: "description", content: "OFM helps teams manage tasks, leave, attendance, events and announcements with a built-in AI assistant. Start your project today." },
-      { property: "og:title", content: "OFM — Smart Office Management System" },
+      { title: "OfficeHub — Smart Office Management System" },
+      { name: "description", content: "OfficeHub helps teams manage tasks, leave, attendance, events and announcements with a built-in AI assistant. Start your project today." },
+      { property: "og:title", content: "OfficeHub — Smart Office Management System" },
       { property: "og:description", content: "Manage tasks, leave, attendance and more with role-based dashboards and an AI assistant." },
     ],
   }),
@@ -56,7 +57,7 @@ function Landing() {
       {/* Nav */}
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-xl font-bold">OFM</span>
+          <img src={officeHubLogo} alt="OfficeHub" className="h-9 w-auto" />
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             <a href="#services" className="hover:text-foreground">Our Services</a>
             <a href="#about" className="hover:text-foreground">About</a>
@@ -81,7 +82,7 @@ function Landing() {
               Run your office, intelligently.
             </h1>
             <p className="text-lg text-muted-foreground">
-              OFM brings tasks, leave, attendance, events and an AI assistant into one
+              OfficeHub brings tasks, leave, attendance, events and an AI assistant into one
               clean workspace — with role-based access for admins, managers and staff.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -121,9 +122,9 @@ function Landing() {
       <section id="about" className="border-y bg-muted/40">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 md:grid-cols-2">
           <div className="space-y-4">
-            <h2 className="text-3xl font-bold">About OFM</h2>
+            <h2 className="text-3xl font-bold">About OfficeHub</h2>
             <p className="text-muted-foreground">
-              OFM (Office Management System) is built for modern teams who want a single,
+              OfficeHub (Office Management System) is built for modern teams who want a single,
               intelligent platform to handle daily operations. From staff onboarding to
               attendance and leave, every workflow is role-aware and secure.
             </p>
@@ -224,7 +225,7 @@ function Landing() {
       {/* Footer */}
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-muted-foreground md:flex-row">
-          <span>© {new Date().getFullYear()} OFM Office Management System</span>
+          <span>© {new Date().getFullYear()} OfficeHub Office Management System</span>
           <Link to="/auth" className="hover:text-foreground">Sign In</Link>
         </div>
       </footer>

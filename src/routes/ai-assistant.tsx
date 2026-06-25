@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/ai-assistant")({
   head: () => ({
-    meta: [{ title: "AI Assistant — OFM System" }],
+    meta: [{ title: "AI Assistant — OfficeHub System" }],
   }),
   component: AIAssistantPage,
 });
