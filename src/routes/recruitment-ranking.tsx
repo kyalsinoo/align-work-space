@@ -138,6 +138,10 @@ function RecruitmentPage() {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<CandidateAnalysis[]>([]);
   const [jobId, setJobId] = useState<string | null>(null);
+  // Uploaded CV files kept around so the owner can view/download them after analysis.
+  const [savedFiles, setSavedFiles] = useState<
+    { name: string; fileName: string; fileData: string }[]
+  >([]);
 
   // Chat
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
