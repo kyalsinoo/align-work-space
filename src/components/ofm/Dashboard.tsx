@@ -567,13 +567,16 @@ function LeaveView() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow><TableHead>Name</TableHead><TableHead>Reason</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow>
+              <TableRow><TableHead>Name</TableHead><TableHead>Reason</TableHead><TableHead>Date &amp; Time</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow>
             </TableHeader>
             <TableBody>
               {list.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell className="font-medium">{l.name}</TableCell>
                   <TableCell>{l.reason}</TableCell>
+                  <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                    {l.createdAt ? new Date(l.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "—"}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={l.status === "approved" ? "default" : l.status === "rejected" ? "destructive" : "secondary"}>{l.status}</Badge>
                   </TableCell>
