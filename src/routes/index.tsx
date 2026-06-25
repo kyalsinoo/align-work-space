@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import authBg from "@/assets/auth-bg.jpg";
+import officeHubLogo from "@/assets/officehub-logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,9 +20,9 @@ import { useOFM } from "@/lib/ofm-store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "OFM — Smart Office Management System" },
-      { name: "description", content: "OFM helps teams manage tasks, leave, attendance, events and announcements with a built-in AI assistant. Start your project today." },
-      { property: "og:title", content: "OFM — Smart Office Management System" },
+      { title: "OfficeHub — Smart Office Management System" },
+      { name: "description", content: "OfficeHub helps teams manage tasks, leave, attendance, events and announcements with a built-in AI assistant. Start your project today." },
+      { property: "og:title", content: "OfficeHub — Smart Office Management System" },
       { property: "og:description", content: "Manage tasks, leave, attendance and more with role-based dashboards and an AI assistant." },
     ],
   }),
@@ -56,7 +57,7 @@ function Landing() {
       {/* Nav */}
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-xl font-bold">OFM</span>
+          <img src={officeHubLogo} alt="OfficeHub" className="h-9 w-auto" />
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             <a href="#services" className="hover:text-foreground">Our Services</a>
             <a href="#about" className="hover:text-foreground">About</a>
@@ -224,7 +225,7 @@ function Landing() {
       {/* Footer */}
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-muted-foreground md:flex-row">
-          <span>© {new Date().getFullYear()} OFM Office Management System</span>
+          <span>© {new Date().getFullYear()} OfficeHub Office Management System</span>
           <Link to="/auth" className="hover:text-foreground">Sign In</Link>
         </div>
       </footer>
