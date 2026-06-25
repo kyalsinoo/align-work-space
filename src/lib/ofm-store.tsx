@@ -276,6 +276,12 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           date: a.date,
           checkIn: a.check_in ?? undefined,
           checkOut: a.check_out ?? undefined,
+          checkInLat: a.check_in_lat ?? null,
+          checkInLng: a.check_in_lng ?? null,
+          checkOutLat: a.check_out_lat ?? null,
+          checkOutLng: a.check_out_lng ?? null,
+          checkInPhoto: a.check_in_photo ?? null,
+          checkOutPhoto: a.check_out_photo ?? null,
         })),
       );
 
