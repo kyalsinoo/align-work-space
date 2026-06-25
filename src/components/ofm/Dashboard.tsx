@@ -567,13 +567,21 @@ function LeaveView() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow><TableHead>Name</TableHead><TableHead>Reason</TableHead><TableHead>Date &amp; Time</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow>
+              <TableRow><TableHead>Name</TableHead><TableHead>Reason</TableHead><TableHead>Duration</TableHead><TableHead>Date &amp; Time</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow>
             </TableHeader>
             <TableBody>
               {list.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell className="font-medium">{l.name}</TableCell>
                   <TableCell>{l.reason}</TableCell>
+                  <TableCell className="whitespace-nowrap text-sm">
+                    {l.days ? (
+                      <span className="font-medium">{l.days} day{l.days > 1 ? "s" : ""}</span>
+                    ) : <span className="text-muted-foreground">—</span>}
+                    {l.startDate && l.endDate && (
+                      <div className="text-xs text-muted-foreground">{l.startDate} → {l.endDate}</div>
+                    )}
+                  </TableCell>
                   <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                     {l.createdAt ? new Date(l.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "—"}
                   </TableCell>
@@ -590,7 +598,7 @@ function LeaveView() {
                   </TableCell>
                 </TableRow>
               ))}
-              {list.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No leave requests</TableCell></TableRow>}
+              {list.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No leave requests</TableCell></TableRow>}
             </TableBody>
           </Table>
         </CardContent>

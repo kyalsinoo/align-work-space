@@ -158,10 +158,10 @@ export function Chatbot({ variant = "staff" }: Props) {
                 <LeaveForm
                   key={m.id}
                   defaultName={currentUser?.name ?? ""}
-                  onSubmit={(name, reason) => {
-                    addLeave({ name, reason });
+                  onSubmit={(name, reason, startDate, endDate, days) => {
+                    addLeave({ name, reason, startDate, endDate, days });
                     toast.success("Leave request submitted to Manager");
-                    push({ id: crypto.randomUUID(), from: "bot", text: `Thanks ${name}! Your leave request is now pending manager approval. ✅` });
+                    push({ id: crypto.randomUUID(), from: "bot", text: `Thanks ${name}! Your **${days}-day** leave request (${startDate} → ${endDate}) is now pending manager approval. ✅` });
                   }}
                 />
               ) : (
@@ -221,10 +221,20 @@ export function Chatbot({ variant = "staff" }: Props) {
   );
 }
 
-function LeaveForm({ defaultName, onSubmit }: { defaultName: string; onSubmit: (name: string, reason: string) => void }) {
+function LeaveForm({ defaultName, onSubmit }: { defaultName: string; onSubmit: (name: string, reason: string, startDate: string, endDate: string, days: number) => void }) {
   const [name, setName] = useState(defaultName);
   const [reason, setReason] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [done, setDone] = useState(false);
+
+  const days = (() => {
+    if (!startDate || !endDate) return 0;
+    const s = new Date(startDate);
+    const e = new Date(endDate);
+    if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime()) || e < s) return 0;
+    return Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
+  })();
 
   if (done) {
     return <div className="rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-xs text-foreground">Submitted ✓</div>;
@@ -237,6 +247,19 @@ function LeaveForm({ defaultName, onSubmit }: { defaultName: string; onSubmit: (
         <Label className="text-xs">Name</Label>
         <Input value={name} onChange={(e) => setName(e.target.value)} className="h-8 text-sm" />
       </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
+          <Label className="text-xs">From</Label>
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-8 text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">To</Label>
+          <Input type="date" value={endDate} min={startDate || undefined} onChange={(e) => setEndDate(e.target.value)} className="h-8 text-sm" />
+        </div>
+      </div>
+      {days > 0 && (
+        <p className="text-[11px] font-medium text-primary">Duration: {days} day{days > 1 ? "s" : ""}</p>
+      )}
       <div className="space-y-1">
         <Label className="text-xs">Reason</Label>
         <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} className="text-sm" placeholder="Reason for leave" />
@@ -244,9 +267,9 @@ function LeaveForm({ defaultName, onSubmit }: { defaultName: string; onSubmit: (
       <Button
         size="sm"
         className="w-full"
-        disabled={!name.trim() || !reason.trim()}
+        disabled={!name.trim() || !reason.trim() || days < 1}
         onClick={() => {
-          onSubmit(name.trim(), reason.trim());
+          onSubmit(name.trim(), reason.trim(), startDate, endDate, days);
           setDone(true);
         }}
       >

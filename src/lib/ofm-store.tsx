@@ -41,9 +41,11 @@ export interface LeaveUsage {
   isExceeded: boolean;
 }
 
-/** Each approved leave request counts as one used leave day. */
+/** Approved leave days are summed by their requested duration. */
 export function getLeaveUsage(leaves: Leave[], userId: string): LeaveUsage {
-  const used = leaves.filter((l) => l.userId === userId && l.status === "approved").length;
+  const used = leaves
+    .filter((l) => l.userId === userId && l.status === "approved")
+    .reduce((sum, l) => sum + (l.days && l.days > 0 ? l.days : 1), 0);
   const remaining = Math.max(0, LEAVE_LIMIT_DAYS - used);
   return {
     used,
@@ -89,6 +91,9 @@ export interface Leave {
   reason: string;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
+  startDate: string | null;
+  endDate: string | null;
+  days: number | null;
 }
 
 export interface Attendance {
@@ -148,7 +153,7 @@ interface OFMContextValue {
   deleteStaff: (id: string) => Promise<void>;
   createTask: (data: { title: string; description: string; roles: Role[] }) => Promise<void>;
   endTask: (id: string) => Promise<void>;
-  addLeave: (data: { name: string; reason: string; userId?: string }) => Promise<void>;
+  addLeave: (data: { name: string; reason: string; userId?: string; startDate?: string; endDate?: string; days?: number }) => Promise<void>;
   setLeaveStatus: (id: string, status: "approved" | "rejected") => Promise<void>;
   checkIn: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
   checkOut: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
@@ -266,6 +271,9 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           reason: l.reason,
           status: l.status as Leave["status"],
           createdAt: l.created_at,
+          startDate: l.start_date ?? null,
+          endDate: l.end_date ?? null,
+          days: l.days ?? null,
         })),
       );
 
@@ -448,7 +456,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       await refresh(uid);
     },
 
-    addLeave: async ({ name, reason, userId }) => {
+    addLeave: async ({ name, reason, userId, startDate, endDate, days }) => {
       if (!company) return;
       const { error } = await supabase.from("leaves").insert({
         company_id: company.id,
@@ -456,6 +464,9 @@ export function OFMProvider({ children }: { children: ReactNode }) {
         name,
         reason,
         status: "pending",
+        start_date: startDate ?? null,
+        end_date: endDate ?? null,
+        days: days ?? null,
       });
       if (error) throw error;
       await refresh(uid);
