@@ -424,7 +424,10 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
         <DialogFooter>
           <Button
             disabled={!name || !email || !password}
-            onClick={() => { onSave({ name, email, password, role }); setOpen(false); }}
+            onClick={() => {
+              if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+              onSave({ name, email, password, role }); setOpen(false);
+            }}
           >
             Save
           </Button>
