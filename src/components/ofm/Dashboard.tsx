@@ -117,11 +117,11 @@ export function Dashboard() {
       {/* Sidebar */}
       <aside className="sticky top-0 flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar text-sidebar-foreground">
         <div className="flex items-center gap-2 px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-brand">
-            <Building2 className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background p-1">
+            <img src={officeHubLogo} alt="OfficeHub logo" className="h-full w-full object-contain" />
           </div>
           <div>
-            <p className="text-sm font-bold leading-tight">{company?.name ?? "OFM"}</p>
+            <p className="text-sm font-bold leading-tight">{company?.name ?? "OfficeHub"}</p>
             <p className="text-[10px] text-sidebar-foreground/60">{company?.type}</p>
           </div>
         </div>
