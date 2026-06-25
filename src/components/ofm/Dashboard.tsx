@@ -122,7 +122,7 @@ export function Dashboard() {
           {nav.map((n) => (
             <button
               key={n.key}
-              onClick={() => setView(n.key)}
+              onClick={() => (n.key === "ai-assistant" ? navigate({ to: "/ai-assistant" }) : setView(n.key))}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 view === n.key
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
