@@ -439,7 +439,7 @@ function TasksView({ role }: { role: Role }) {
   const availableRoles = ASSIGN_ROLES;
 
   function selectRole(r: Role) {
-    setRoles([r]);
+    setRoles(r ? [r] : []);
   }
 
   // Staff: read-only list of all tasks; they can only End tasks assigned to
