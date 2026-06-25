@@ -379,7 +379,7 @@ function EmployeesView({ role }: { role: Role }) {
                       <div className="flex justify-end gap-2">
                         <StaffDialog
                           initial={u}
-                          onSave={(d) => { updateStaff(u.id, d); toast.success("Staff updated"); }}
+                          onSave={async (d) => { await updateStaff(u.id, d); toast.success("Staff updated"); }}
                           trigger={<Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>}
                         />
                       </div>
