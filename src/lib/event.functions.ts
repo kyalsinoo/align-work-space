@@ -11,7 +11,7 @@ const EventInput = z.object({
   companyType: z.string().nullable().optional(),
   details: z.string().optional(),
   language: z.enum(["en", "my"]).optional(),
-  imageDataUrl: z.string().optional(),
+  imageDataUrl: z.string().max(8_000_000).optional(),
 });
 
 export const generateEvent = createServerFn({ method: "POST" })
