@@ -203,6 +203,16 @@ function RecruitmentPage() {
     });
   }, [msgs, thinking]);
 
+  // Focus & scroll to a newly added candidate card (added at the top of the list).
+  useEffect(() => {
+    if (pendingFocusRef.current && newCardRef.current) {
+      pendingFocusRef.current = false;
+      newCardRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      newCardRef.current.focus();
+    }
+  }, [candidates]);
+
+
   if (loading || (hasSession && !currentUser)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
