@@ -261,6 +261,9 @@ function RecruitmentPage() {
           candidates: filled.map((c) => ({
             name: c.name.trim() || undefined,
             resume: c.resume.trim(),
+            fileName: c.fileName,
+            mimeType: c.mimeType,
+            fileData: c.fileData,
           })),
         },
       });
