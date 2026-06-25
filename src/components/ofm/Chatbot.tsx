@@ -158,10 +158,10 @@ export function Chatbot({ variant = "staff" }: Props) {
                 <LeaveForm
                   key={m.id}
                   defaultName={currentUser?.name ?? ""}
-                  onSubmit={(name, reason) => {
-                    addLeave({ name, reason });
+                  onSubmit={(name, reason, startDate, endDate, days) => {
+                    addLeave({ name, reason, startDate, endDate, days });
                     toast.success("Leave request submitted to Manager");
-                    push({ id: crypto.randomUUID(), from: "bot", text: `Thanks ${name}! Your leave request is now pending manager approval. ✅` });
+                    push({ id: crypto.randomUUID(), from: "bot", text: `Thanks ${name}! Your **${days}-day** leave request (${startDate} → ${endDate}) is now pending manager approval. ✅` });
                   }}
                 />
               ) : (
