@@ -41,9 +41,11 @@ export interface LeaveUsage {
   isExceeded: boolean;
 }
 
-/** Each approved leave request counts as one used leave day. */
+/** Approved leave days are summed by their requested duration. */
 export function getLeaveUsage(leaves: Leave[], userId: string): LeaveUsage {
-  const used = leaves.filter((l) => l.userId === userId && l.status === "approved").length;
+  const used = leaves
+    .filter((l) => l.userId === userId && l.status === "approved")
+    .reduce((sum, l) => sum + (l.days && l.days > 0 ? l.days : 1), 0);
   const remaining = Math.max(0, LEAVE_LIMIT_DAYS - used);
   return {
     used,

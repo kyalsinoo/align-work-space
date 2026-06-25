@@ -213,27 +213,36 @@ export type Database = {
         Row: {
           company_id: string
           created_at: string
+          days: number | null
+          end_date: string | null
           id: string
           name: string
           reason: string
+          start_date: string | null
           status: string
           user_id: string | null
         }
         Insert: {
           company_id: string
           created_at?: string
+          days?: number | null
+          end_date?: string | null
           id?: string
           name: string
           reason?: string
+          start_date?: string | null
           status?: string
           user_id?: string | null
         }
         Update: {
           company_id?: string
           created_at?: string
+          days?: number | null
+          end_date?: string | null
           id?: string
           name?: string
           reason?: string
+          start_date?: string | null
           status?: string
           user_id?: string | null
         }
