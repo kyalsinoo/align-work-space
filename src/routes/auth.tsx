@@ -127,6 +127,10 @@ function AuthPage() {
                     className="w-full"
                     disabled={!rName || !rEmail || !rPass || !cName}
                     onClick={async () => {
+                      if (rPass.length < 8) {
+                        toast.error("Password must be at least 8 characters");
+                        return;
+                      }
                       try {
                         await registerCompany({ name: rName, email: rEmail, password: rPass, companyName: cName, companyType: cType });
                         toast.success("Company registered");
