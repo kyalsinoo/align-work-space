@@ -51,7 +51,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/recruitment-ranking")({
   head: () => ({
     meta: [
-      { title: "AI Candidate Ranking — OFM System" },
+      { title: "AI Candidate Ranking — OfficeHub System" },
       {
         name: "description",
         content:

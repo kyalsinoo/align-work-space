@@ -5,7 +5,7 @@ import { useOFM } from "@/lib/ofm-store";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
-    meta: [{ title: "Dashboard — OFM System" }],
+    meta: [{ title: "Dashboard — OfficeHub System" }],
   }),
   component: DashboardPage,
 });

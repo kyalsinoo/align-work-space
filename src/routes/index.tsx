@@ -82,7 +82,7 @@ function Landing() {
               Run your office, intelligently.
             </h1>
             <p className="text-lg text-muted-foreground">
-              OFM brings tasks, leave, attendance, events and an AI assistant into one
+              OfficeHub brings tasks, leave, attendance, events and an AI assistant into one
               clean workspace — with role-based access for admins, managers and staff.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -122,9 +122,9 @@ function Landing() {
       <section id="about" className="border-y bg-muted/40">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 md:grid-cols-2">
           <div className="space-y-4">
-            <h2 className="text-3xl font-bold">About OFM</h2>
+            <h2 className="text-3xl font-bold">About OfficeHub</h2>
             <p className="text-muted-foreground">
-              OFM (Office Management System) is built for modern teams who want a single,
+              OfficeHub (Office Management System) is built for modern teams who want a single,
               intelligent platform to handle daily operations. From staff onboarding to
               attendance and leave, every workflow is role-aware and secure.
             </p>

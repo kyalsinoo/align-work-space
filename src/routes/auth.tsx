@@ -19,9 +19,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign In — OFM Office Management System" },
+      { title: "Sign In — OfficeHub Office Management System" },
       { name: "description", content: "Sign in as staff or register your company to start managing tasks, leave, attendance and more with an AI assistant." },
-      { property: "og:title", content: "Sign In — OFM Office Management System" },
+      { property: "og:title", content: "Sign In — OfficeHub Office Management System" },
       { property: "og:description", content: "Sign in or register your company to access role-based dashboards and an AI assistant." },
     ],
   }),
