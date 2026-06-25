@@ -106,7 +106,7 @@ function AuthPage() {
                   </div>
                   <div className="space-y-1">
                     <Label>Password</Label>
-                    <Input type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} />
+                    <PasswordInput value={rPass} onChange={(e) => setRPass(e.target.value)} />
                     <p className={`text-xs ${rPass && rPass.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
                       Password must be at least 8 characters
                     </p>
