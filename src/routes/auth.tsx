@@ -18,6 +18,14 @@ import {
 import { useOFM } from "@/lib/ofm-store";
 import { toast } from "sonner";
 
+const PASSWORD_RULES = [
+  { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { label: "One number", test: (p: string) => /[0-9]/.test(p) },
+  { label: "One special character", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+];
+const isStrongPassword = (p: string) => PASSWORD_RULES.every((r) => r.test(p));
+
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -115,9 +123,16 @@ function AuthPage() {
                   <div className="space-y-1">
                     <Label>Password</Label>
                     <PasswordInput value={rPass} onChange={(e) => setRPass(e.target.value)} />
-                    <p className={`text-xs ${rPass && rPass.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
-                      Password must be at least 8 characters
-                    </p>
+                    <ul className="space-y-0.5 pt-1">
+                      {PASSWORD_RULES.map((r) => {
+                        const ok = r.test(rPass);
+                        return (
+                          <li key={r.label} className={`text-xs ${rPass ? (ok ? "text-green-600" : "text-destructive") : "text-muted-foreground"}`}>
+                            {rPass && ok ? "✓" : "•"} {r.label}
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
                   <div className="space-y-1"><Label>Company Name</Label><Input value={cName} onChange={(e) => setCName(e.target.value)} /></div>
                   <div className="space-y-1">
@@ -134,14 +149,14 @@ function AuthPage() {
                   </div>
                   <Button
                     className="w-full"
-                    disabled={!rName || !rEmail || !rPass || !cName}
+                    disabled={!rName || !rEmail || !rPass || !cName || !isStrongPassword(rPass)}
                     onClick={async () => {
                       if (!EMAIL_REGEX.test(rEmail)) {
                         toast.error("Enter a valid email like name@gmail.com");
                         return;
                       }
-                      if (rPass.length < 8) {
-                        toast.error("Password must be at least 8 characters");
+                      if (!isStrongPassword(rPass)) {
+                        toast.error("Password must be 8+ chars with an uppercase letter, a number and a special character");
                         return;
                       }
                       try {

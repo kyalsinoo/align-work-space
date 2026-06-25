@@ -35,6 +35,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+
+const STAFF_PASSWORD_RULES = [
+  { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { label: "One number", test: (p: string) => /[0-9]/.test(p) },
+  { label: "One special character", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+];
+const isStrongPassword = (p: string) => STAFF_PASSWORD_RULES.every((r) => r.test(p));
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -414,9 +422,16 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
           <div className="space-y-1">
             <Label>Password</Label>
             <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
-            <p className={`text-xs ${password && password.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
-              Password must be at least 8 characters
-            </p>
+            <ul className="space-y-0.5 pt-1">
+              {STAFF_PASSWORD_RULES.map((r) => {
+                const ok = r.test(password);
+                return (
+                  <li key={r.label} className={`text-xs ${password ? (ok ? "text-green-600" : "text-destructive") : "text-muted-foreground"}`}>
+                    {password && ok ? "✓" : "•"} {r.label}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           <div className="space-y-1">
             <Label>Role</Label>
@@ -433,7 +448,7 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
             disabled={!name || !email || !password}
             onClick={() => {
               if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error("Enter a valid email like name@gmail.com"); return; }
-              if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+              if (!isStrongPassword(password)) { toast.error("Password must be 8+ chars with an uppercase letter, a number and a special character"); return; }
               onSave({ name, email, password, role }); setOpen(false);
             }}
           >
