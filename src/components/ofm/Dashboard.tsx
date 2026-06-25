@@ -1094,15 +1094,18 @@ function AnnouncementsView({ role }: { role: Role }) {
     }
     setPublishing(true);
     try {
-      const { sent, reason } = await publishAnnouncement({ title: title.trim(), content: content.trim() });
+      const { sent, reason, email } = await publishAnnouncement({ title: title.trim(), content: content.trim() });
       setTitle("");
       setContent("");
-      if (sent) {
+
+      if (email?.sent) {
+        toast.success(`Published. Emailed ${email.count} staff member${email.count === 1 ? "" : "s"}.`);
+      } else if (sent) {
         toast.success("Published & broadcast to Telegram");
       } else if (reason === "telegram_not_configured") {
         toast.success("Published. Add Telegram credentials in Settings to broadcast.");
       } else {
-        toast.success("Published. Telegram broadcast failed — check your bot settings.");
+        toast.success("Published. Broadcast failed — check Telegram/email settings.");
       }
     } catch {
       toast.error("Failed to publish announcement");
