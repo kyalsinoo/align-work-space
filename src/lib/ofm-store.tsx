@@ -59,6 +59,9 @@ export interface Company {
   id: string;
   name: string;
   type: string;
+  latitude: number | null;
+  longitude: number | null;
+  geofenceRadius: number;
 }
 
 export interface User {
