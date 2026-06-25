@@ -223,7 +223,7 @@ export const getRecruitmentJob = createServerFn({ method: "POST" })
       .select("analysis, score")
       .eq("job_id", data.jobId)
       .order("score", { ascending: false });
-    const candidates = (cand ?? []).map((c) => c.analysis as CandidateAnalysis);
+    const candidates = (cand ?? []).map((c) => c.analysis as unknown as CandidateAnalysis);
     return { candidates };
   });
 
