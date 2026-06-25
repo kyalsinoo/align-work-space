@@ -155,8 +155,8 @@ function AuthPage() {
                         toast.error("Enter a valid email like name@gmail.com");
                         return;
                       }
-                      if (rPass.length < 8) {
-                        toast.error("Password must be at least 8 characters");
+                      if (!isStrongPassword(rPass)) {
+                        toast.error("Password must be 8+ chars with an uppercase letter, a number and a special character");
                         return;
                       }
                       try {
