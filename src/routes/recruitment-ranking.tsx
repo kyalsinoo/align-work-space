@@ -504,7 +504,7 @@ function RecruitmentPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-brand">
-            <Trophy className="h-5 w-5 text-primary-foreground" />
+            <Trophy className="h-5 w-5 text-brand-foreground" />
           </div>
           <div>
             <h1 className="text-lg font-bold leading-tight">AI Candidate Ranking</h1>

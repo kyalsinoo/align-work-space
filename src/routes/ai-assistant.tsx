@@ -118,7 +118,7 @@ function AIAssistantPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-brand">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+            <Sparkles className="h-5 w-5 text-brand-foreground" />
           </div>
           <div>
             <h1 className="text-lg font-bold leading-tight">AI Assistant</h1>
@@ -136,7 +136,7 @@ function AIAssistantPage() {
         {msgs.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-6 py-10 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-brand">
-              <Bot className="h-7 w-7 text-primary-foreground" />
+              <Bot className="h-7 w-7 text-brand-foreground" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Hi {currentUser.name.split(" ")[0]} 👋</h2>
