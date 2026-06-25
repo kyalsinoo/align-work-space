@@ -73,6 +73,7 @@ type ViewKey =
   | "announcements"
   | "insights"
   | "ai-summary"
+  | "ai-assistant"
   | "settings";
 
 const STAFF_ROLES: Role[] = ["manager", "sales", "developer"];
@@ -99,6 +100,7 @@ export function Dashboard() {
     { key: "events" as ViewKey, label: "Events", icon: PartyPopper },
     { key: "announcements" as ViewKey, label: "Announcements", icon: Megaphone },
     { key: "ai-summary" as ViewKey, label: "AI Data Summary", icon: Sparkles },
+    { key: "ai-assistant" as ViewKey, label: "AI Assistant", icon: MessageCircle },
     { key: "insights" as ViewKey, label: "Saved AI Insights", icon: Bookmark },
     ...(role === "admin" ? [{ key: "settings" as ViewKey, label: "Settings", icon: Settings }] : []),
   ];
@@ -120,7 +122,7 @@ export function Dashboard() {
           {nav.map((n) => (
             <button
               key={n.key}
-              onClick={() => setView(n.key)}
+              onClick={() => (n.key === "ai-assistant" ? navigate({ to: "/ai-assistant" }) : setView(n.key))}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 view === n.key
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
