@@ -178,6 +178,7 @@ export function Dashboard() {
             <h1 className="text-xl font-bold capitalize">{nav.find((n) => n.key === view)?.label}</h1>
             <p className="text-xs text-muted-foreground">{ROLE_LABELS[role]} workspace</p>
           </div>
+          <ThemeToggle />
         </header>
         <div className="p-8">
           {view === "dashboard" && <DashboardView role={role} />}
