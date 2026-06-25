@@ -279,7 +279,7 @@ function DashboardView({ role }: { role: Role }) {
     <div className="space-y-6">
       <LeaveLimitWarnings role={role} />
 
-      <Card className="overflow-hidden border-0 bg-gradient-hero text-primary-foreground">
+      <Card className="overflow-hidden border-0 bg-gradient-hero text-brand-foreground">
         <CardContent className="flex items-center gap-4 p-6">
           <Sparkles className="h-8 w-8" />
           <div>
@@ -1029,7 +1029,7 @@ function SettingsView() {
           <ol className="grid gap-4 md:grid-cols-2">
             {steps.map((s, i) => (
               <li key={i} className="flex gap-3 rounded-xl border border-border bg-muted/40 p-4">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-brand text-sm font-bold text-primary-foreground">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-brand text-sm font-bold text-brand-foreground">
                   {i + 1}
                 </div>
                 <div className="space-y-1">
@@ -1183,7 +1183,7 @@ function SavedInsightsView() {
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-0 bg-gradient-hero text-primary-foreground">
+      <Card className="overflow-hidden border-0 bg-gradient-hero text-brand-foreground">
         <CardContent className="flex items-center gap-4 p-6">
           <Bookmark className="h-8 w-8" />
           <div>

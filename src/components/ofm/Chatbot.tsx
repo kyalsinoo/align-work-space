@@ -130,7 +130,7 @@ export function Chatbot({ variant = "staff" }: Props) {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-brand text-primary-foreground shadow-elegant transition-transform hover:scale-105"
+          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-brand text-brand-foreground shadow-elegant transition-transform hover:scale-105"
           aria-label="Open assistant"
         >
           <MessageCircle className="h-6 w-6" />
@@ -139,7 +139,7 @@ export function Chatbot({ variant = "staff" }: Props) {
 
       {open && (
         <div className="fixed bottom-6 right-6 z-50 flex h-[32rem] w-[22rem] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-elegant">
-          <div className="flex items-center justify-between bg-gradient-hero px-4 py-3 text-primary-foreground">
+          <div className="flex items-center justify-between bg-gradient-hero px-4 py-3 text-brand-foreground">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
               <div>
