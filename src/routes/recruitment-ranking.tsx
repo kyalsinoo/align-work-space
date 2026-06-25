@@ -14,9 +14,27 @@ import {
   ShieldCheck,
   Upload,
   FileText,
+  GripVertical,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useServerFn } from "@tanstack/react-start";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,12 +61,23 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useOFM } from "@/lib/ofm-store";
 import {
   analyzeRecruitment,
   recruitmentChat,
 } from "@/lib/recruitment.functions";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/recruitment-ranking")({
   head: () => ({
@@ -115,6 +144,102 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
   return "secondary";
 }
 
+function SortableCandidate({
+  candidate: c,
+  index,
+  highlight,
+  nameRef,
+  onUpdateName,
+  onRequestDelete,
+  onFile,
+  onClearFile,
+}: {
+  candidate: CandidateInput;
+  index: number;
+  highlight: boolean;
+  nameRef?: React.RefObject<HTMLInputElement | null>;
+  onUpdateName: (value: string) => void;
+  onRequestDelete: () => void;
+  onFile: (file: File | null) => void;
+  onClearFile: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: c.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`space-y-2 rounded-lg border p-3 transition-colors ${
+        highlight
+          ? "animate-fade-in border-primary ring-2 ring-primary/40"
+          : "border-border"
+      } ${isDragging ? "opacity-80 shadow-lg" : ""}`}
+    >
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="cursor-grab touch-none rounded p-1 text-muted-foreground hover:bg-muted active:cursor-grabbing"
+          aria-label="Drag to reorder"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <Input
+          ref={nameRef}
+          value={c.name}
+          onChange={(e) => onUpdateName(e.target.value)}
+          placeholder={`Candidate ${index + 1} name (optional)`}
+          className="flex-1"
+        />
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onRequestDelete}
+          aria-label="Remove candidate"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+      {c.fileData ? (
+        <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
+          <span className="flex min-w-0 items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 shrink-0 text-primary" />
+            <span className="truncate">{c.fileName}</span>
+          </span>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onClearFile}
+            className="h-7 shrink-0 px-2 text-xs"
+          >
+            Remove
+          </Button>
+        </div>
+      ) : (
+        <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-muted/30 px-3 py-5 text-center text-sm text-muted-foreground transition-colors hover:bg-accent">
+          <Upload className="h-5 w-5" />
+          <span>Upload resume/CV file or picture</span>
+          <span className="text-xs">PDF, DOC, TXT, or image (max 10MB)</span>
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*,.pdf,.doc,.docx,.txt"
+            onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
+
+
 function RecruitmentPage() {
   const { currentUser, loading, hasSession } = useOFM();
   const navigate = useNavigate();
@@ -143,11 +268,22 @@ function RecruitmentPage() {
     { name: string; fileName: string; fileData: string }[]
   >([]);
 
+  // Candidate UX: track newly added card for highlight/focus and pending delete.
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const newCardRef = useRef<HTMLInputElement>(null);
+  const pendingFocusRef = useRef(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
   // Chat
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const chatScroll = useRef<HTMLDivElement>(null);
+
 
   // Auth guard — admin (owner) only.
   useEffect(() => {
@@ -162,6 +298,16 @@ function RecruitmentPage() {
       behavior: "smooth",
     });
   }, [msgs, thinking]);
+
+  // Focus & scroll to a newly added candidate card (added at the top of the list).
+  useEffect(() => {
+    if (pendingFocusRef.current && newCardRef.current) {
+      pendingFocusRef.current = false;
+      newCardRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      newCardRef.current.focus();
+    }
+  }, [candidates]);
+
 
   if (loading || (hasSession && !currentUser)) {
     return (
@@ -195,11 +341,27 @@ function RecruitmentPage() {
   }
 
   function addCandidate() {
-    setCandidates((p) => [...p, { id: crypto.randomUUID(), name: "", resume: "" }]);
+    const id = crypto.randomUUID();
+    setCandidates((p) => [{ id, name: "", resume: "" }, ...p]);
+    setHighlightId(id);
+    pendingFocusRef.current = true;
+    setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 1600);
   }
   function removeCandidate(id: string) {
     setCandidates((p) => (p.length > 1 ? p.filter((c) => c.id !== id) : p));
   }
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setCandidates((p) => {
+      const oldIndex = p.findIndex((c) => c.id === active.id);
+      const newIndex = p.findIndex((c) => c.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return p;
+      return arrayMove(p, oldIndex, newIndex);
+    });
+  }
+
+
   function updateCandidate(id: string, field: "name" | "resume", value: string) {
     setCandidates((p) => p.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
   }
@@ -443,54 +605,33 @@ function RecruitmentPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {candidates.map((c, i) => (
-                <div key={c.id} className="space-y-2 rounded-lg border border-border p-3">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={c.name}
-                      onChange={(e) => updateCandidate(c.id, "name", e.target.value)}
-                      placeholder={`Candidate ${i + 1} name (optional)`}
-                      className="flex-1"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => removeCandidate(c.id)}
-                      aria-label="Remove candidate"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {c.fileData ? (
-                    <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
-                      <span className="flex min-w-0 items-center gap-2 text-sm">
-                        <FileText className="h-4 w-4 shrink-0 text-primary" />
-                        <span className="truncate">{c.fileName}</span>
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => clearFile(c.id)}
-                        className="h-7 shrink-0 px-2 text-xs"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ) : (
-                    <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-muted/30 px-3 py-5 text-center text-sm text-muted-foreground transition-colors hover:bg-accent">
-                      <Upload className="h-5 w-5" />
-                      <span>Upload resume/CV file or picture</span>
-                      <span className="text-xs">PDF, DOC, TXT, or image (max 10MB)</span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*,.pdf,.doc,.docx,.txt"
-                        onChange={(e) => handleFile(c.id, e.target.files?.[0] ?? null)}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={candidates.map((c) => c.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4">
+                    {candidates.map((c, i) => (
+                      <SortableCandidate
+                        key={c.id}
+                        candidate={c}
+                        index={i}
+                        highlight={highlightId === c.id}
+                        nameRef={highlightId === c.id ? newCardRef : undefined}
+                        onUpdateName={(v) => updateCandidate(c.id, "name", v)}
+                        onRequestDelete={() => setPendingDeleteId(c.id)}
+                        onFile={(f) => handleFile(c.id, f)}
+                        onClearFile={() => clearFile(c.id)}
                       />
-                    </label>
-                  )}
-                </div>
-              ))}
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
               <Button onClick={runAnalysis} disabled={running} className="w-full">
                 {running ? (
                   <>
@@ -762,6 +903,31 @@ function RecruitmentPage() {
           </Card>
         </div>
       </div>
+
+      <AlertDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => !open && setPendingDeleteId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove candidate?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this candidate?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingDeleteId) removeCandidate(pendingDeleteId);
+                setPendingDeleteId(null);
+              }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
