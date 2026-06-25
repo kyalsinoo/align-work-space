@@ -59,6 +59,9 @@ export interface Company {
   id: string;
   name: string;
   type: string;
+  latitude: number | null;
+  longitude: number | null;
+  geofenceRadius: number;
 }
 
 export interface User {
@@ -95,6 +98,12 @@ export interface Attendance {
   date: string;
   checkIn?: string;
   checkOut?: string;
+  checkInLat?: number | null;
+  checkInLng?: number | null;
+  checkOutLat?: number | null;
+  checkOutLng?: number | null;
+  checkInPhoto?: string | null;
+  checkOutPhoto?: string | null;
 }
 
 export interface OfmEvent {
@@ -141,8 +150,9 @@ interface OFMContextValue {
   endTask: (id: string) => Promise<void>;
   addLeave: (data: { name: string; reason: string; userId?: string }) => Promise<void>;
   setLeaveStatus: (id: string, status: "approved" | "rejected") => Promise<void>;
-  checkIn: () => Promise<void>;
-  checkOut: () => Promise<void>;
+  checkIn: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
+  checkOut: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
+  saveCompanyLocation: (data: { latitude: number; longitude: number; geofenceRadius: number }) => Promise<void>;
   setWifiPassword: (pw: string) => Promise<void>;
   saveTelegramSettings: (data: { botToken: string; chatId: string }) => Promise<void>;
   publishAnnouncement: (data: { title: string; content: string }) => Promise<{ sent: boolean; reason?: string }>;
@@ -207,7 +217,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       ]);
 
       if (companyRes.data) {
-        setCompany({ id: companyRes.data.id, name: companyRes.data.name, type: companyRes.data.type });
+        setCompany({ id: companyRes.data.id, name: companyRes.data.name, type: companyRes.data.type, latitude: companyRes.data.latitude ?? null, longitude: companyRes.data.longitude ?? null, geofenceRadius: companyRes.data.geofence_radius ?? 200 });
         setWifiPw(companyRes.data.wifi_password ?? "");
         setTelegramBotToken(companyRes.data.telegram_bot_token ?? "");
         setTelegramChatId(companyRes.data.telegram_chat_id ?? "");
@@ -267,6 +277,12 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           date: a.date,
           checkIn: a.check_in ?? undefined,
           checkOut: a.check_out ?? undefined,
+          checkInLat: a.check_in_lat ?? null,
+          checkInLng: a.check_in_lng ?? null,
+          checkOutLat: a.check_out_lat ?? null,
+          checkOutLng: a.check_out_lng ?? null,
+          checkInPhoto: a.check_in_photo ?? null,
+          checkOutPhoto: a.check_out_photo ?? null,
         })),
       );
 
@@ -451,13 +467,13 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       await refresh(uid);
     },
 
-    checkIn: async () => {
+    checkIn: async ({ lat, lng, photo }) => {
       if (!company || !currentUser) return;
       const date = new Date().toISOString().slice(0, 10);
       const existing = attendance.find((a) => a.userId === currentUser.id && a.date === date);
       if (existing) {
         if (existing.checkIn) return;
-        const { error } = await supabase.from("attendance").update({ check_in: nowTime() }).eq("id", existing.id);
+        const { error } = await supabase.from("attendance").update({ check_in: nowTime(), check_in_lat: lat, check_in_lng: lng, check_in_photo: photo }).eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("attendance").insert({
@@ -466,18 +482,21 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           user_name: currentUser.name,
           date,
           check_in: nowTime(),
+          check_in_lat: lat,
+          check_in_lng: lng,
+          check_in_photo: photo,
         });
         if (error) throw error;
       }
       await refresh(uid);
     },
 
-    checkOut: async () => {
+    checkOut: async ({ lat, lng, photo }) => {
       if (!company || !currentUser) return;
       const date = new Date().toISOString().slice(0, 10);
       const existing = attendance.find((a) => a.userId === currentUser.id && a.date === date);
       if (existing) {
-        const { error } = await supabase.from("attendance").update({ check_out: nowTime() }).eq("id", existing.id);
+        const { error } = await supabase.from("attendance").update({ check_out: nowTime(), check_out_lat: lat, check_out_lng: lng, check_out_photo: photo }).eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("attendance").insert({
@@ -486,10 +505,23 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           user_name: currentUser.name,
           date,
           check_out: nowTime(),
+          check_out_lat: lat,
+          check_out_lng: lng,
+          check_out_photo: photo,
         });
         if (error) throw error;
       }
       await refresh(uid);
+    },
+
+    saveCompanyLocation: async ({ latitude, longitude, geofenceRadius }) => {
+      if (!company) return;
+      const { error } = await supabase
+        .from("companies")
+        .update({ latitude, longitude, geofence_radius: geofenceRadius })
+        .eq("id", company.id);
+      if (error) throw error;
+      setCompany({ ...company, latitude, longitude, geofenceRadius });
     },
 
     setWifiPassword: async (pw) => {

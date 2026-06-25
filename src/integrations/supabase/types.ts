@@ -55,7 +55,13 @@ export type Database = {
       attendance: {
         Row: {
           check_in: string | null
+          check_in_lat: number | null
+          check_in_lng: number | null
+          check_in_photo: string | null
           check_out: string | null
+          check_out_lat: number | null
+          check_out_lng: number | null
+          check_out_photo: string | null
           company_id: string
           created_at: string
           date: string
@@ -65,7 +71,13 @@ export type Database = {
         }
         Insert: {
           check_in?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_in_photo?: string | null
           check_out?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          check_out_photo?: string | null
           company_id: string
           created_at?: string
           date?: string
@@ -75,7 +87,13 @@ export type Database = {
         }
         Update: {
           check_in?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_in_photo?: string | null
           check_out?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          check_out_photo?: string | null
           company_id?: string
           created_at?: string
           date?: string
@@ -96,7 +114,10 @@ export type Database = {
       companies: {
         Row: {
           created_at: string
+          geofence_radius: number
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           telegram_bot_token: string
           telegram_chat_id: string
@@ -106,7 +127,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          geofence_radius?: number
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           telegram_bot_token?: string
           telegram_chat_id?: string
@@ -116,7 +140,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          geofence_radius?: number
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           telegram_bot_token?: string
           telegram_chat_id?: string
