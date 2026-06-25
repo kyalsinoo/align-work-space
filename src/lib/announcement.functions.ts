@@ -145,7 +145,7 @@ export const broadcastAnnouncement = createServerFn({ method: "POST" })
       email: {
         sent: emailResult.sent,
         reason: emailResult.reason,
-        count: emailResult.sent ? recipients.length : 0,
+        count: emailResult.count ?? 0,
       },
     };
   });
