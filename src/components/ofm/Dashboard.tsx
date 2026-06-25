@@ -73,6 +73,7 @@ type ViewKey =
   | "announcements"
   | "insights"
   | "ai-summary"
+  | "ai-assistant"
   | "settings";
 
 const STAFF_ROLES: Role[] = ["manager", "sales", "developer"];
