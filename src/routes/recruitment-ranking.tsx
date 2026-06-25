@@ -292,6 +292,21 @@ function RecruitmentPage() {
     }
   }
 
+  function findCvFor(name: string) {
+    if (!name) return undefined;
+    const key = name.toLowerCase();
+    return savedFiles.find((f) => f.name === key || f.name.includes(key) || key.includes(f.name));
+  }
+
+  function downloadCv(file: { fileName: string; fileData: string }) {
+    const a = document.createElement("a");
+    a.href = file.fileData;
+    a.download = file.fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
   async function sendChat(text: string) {
     const trimmed = text.trim();
     if (!trimmed || thinking || !jobId) return;
