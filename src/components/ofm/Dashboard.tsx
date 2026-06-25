@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -435,8 +436,8 @@ function TasksView({ role }: { role: Role }) {
 
   const availableRoles = ASSIGN_ROLES;
 
-  function toggle(r: Role) {
-    setRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
+  function selectRole(r: Role) {
+    setRoles([r]);
   }
 
   // Staff: read-only list of all tasks; they can only End tasks assigned to
@@ -498,15 +499,16 @@ function TasksView({ role }: { role: Role }) {
           <div className="space-y-1"><Label>Title</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} /></div>
           <div className="space-y-1"><Label>Description</Label><Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} /></div>
           <div className="space-y-2">
-            <Label>Assign to roles</Label>
-            <div className="flex flex-wrap gap-4">
+            <Label>Assign to role <span className="text-destructive">*</span></Label>
+            <p className="text-xs text-muted-foreground">Choose one role for this task</p>
+            <RadioGroup value={roles[0] ?? ""} onValueChange={(v) => selectRole(v as Role)} className="flex flex-wrap gap-4">
               {availableRoles.map((r) => (
                 <label key={r} className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={roles.includes(r)} onCheckedChange={() => toggle(r)} />
+                  <RadioGroupItem value={r} />
                   {ROLE_LABELS[r]}
                 </label>
               ))}
-            </div>
+            </RadioGroup>
           </div>
           <Button
             className="w-full"
@@ -536,9 +538,6 @@ function TasksView({ role }: { role: Role }) {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={t.status === "ended" ? "secondary" : "default"}>{t.status}</Badge>
-                {t.status === "active" && (
-                  <Button size="sm" variant="outline" onClick={() => { endTask(t.id); toast.success("Task ended"); }}>End</Button>
-                )}
               </div>
             </div>
           ))}
