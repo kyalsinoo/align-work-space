@@ -102,6 +102,7 @@ export function Dashboard() {
   const { currentUser, company, signOut } = useOFM();
   const navigate = useNavigate();
   const [view, setView] = useState<ViewKey>("dashboard");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   if (!currentUser) return null;
   const role = currentUser.role;
