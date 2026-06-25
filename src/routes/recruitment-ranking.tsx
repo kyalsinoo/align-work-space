@@ -252,6 +252,15 @@ function RecruitmentPage() {
     setRunning(true);
     setResults([]);
     setMsgs([]);
+    setSavedFiles(
+      filled
+        .filter((c) => c.fileData)
+        .map((c) => ({
+          name: (c.name.trim() || c.fileName || "").toLowerCase(),
+          fileName: c.fileName || "cv",
+          fileData: c.fileData as string,
+        })),
+    );
     try {
       const res = await analyze({
         data: {
