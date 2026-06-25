@@ -406,7 +406,7 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
           <div className="space-y-1"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
           <div className="space-y-1">
             <Label>Password</Label>
-            <Input value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
             <p className={`text-xs ${password && password.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
               Password must be at least 8 characters
             </p>
