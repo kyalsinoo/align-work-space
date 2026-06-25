@@ -851,7 +851,98 @@ function AttendanceView({ role }: { role: Role }) {
   );
 }
 
+/* ---------- Company Location (Geofence) ---------- */
+function CompanyLocationCard() {
+  const { company, saveCompanyLocation } = useOFM();
+  const [lat, setLat] = useState(company?.latitude != null ? String(company.latitude) : "");
+  const [lng, setLng] = useState(company?.longitude != null ? String(company.longitude) : "");
+  const [radius, setRadius] = useState(String(company?.geofenceRadius ?? 200));
+  const [saving, setSaving] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  const useCurrent = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation not supported");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(String(pos.coords.latitude));
+        setLng(String(pos.coords.longitude));
+        setLocating(false);
+        toast.success("Current location filled");
+      },
+      () => {
+        setLocating(false);
+        toast.error("Location access denied");
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
+  const save = async () => {
+    const la = parseFloat(lat);
+    const ln = parseFloat(lng);
+    const r = parseInt(radius, 10);
+    if (Number.isNaN(la) || Number.isNaN(ln)) {
+      toast.error("Enter valid latitude and longitude");
+      return;
+    }
+    setSaving(true);
+    try {
+      await saveCompanyLocation({ latitude: la, longitude: ln, geofenceRadius: Number.isNaN(r) ? 200 : r });
+      toast.success("Company location saved");
+    } catch {
+      toast.error("Failed to save location");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <MapPin className="h-4 w-4" /> Office Location (Check-In Geofence)
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-xs text-muted-foreground">
+          Set your office latitude & longitude. Staff must be within the allowed radius to check in/out.
+          If left empty, staff can check in/out from any location (current location is still recorded).
+        </p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-1">
+            <Label>Latitude</Label>
+            <Input value={lat} onChange={(e) => setLat(e.target.value)} placeholder="e.g. 16.8409" />
+          </div>
+          <div className="space-y-1">
+            <Label>Longitude</Label>
+            <Input value={lng} onChange={(e) => setLng(e.target.value)} placeholder="e.g. 96.1735" />
+          </div>
+          <div className="space-y-1">
+            <Label>Radius (m)</Label>
+            <Input value={radius} onChange={(e) => setRadius(e.target.value)} placeholder="200" />
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={useCurrent} disabled={locating}>
+            {locating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Navigation className="mr-2 h-4 w-4" />}
+            Use Current Location
+          </Button>
+          <Button onClick={save} disabled={saving}>
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Save Location
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 /* ---------- Settings ---------- */
+
 function SettingsView() {
   const {
     wifiPassword,
