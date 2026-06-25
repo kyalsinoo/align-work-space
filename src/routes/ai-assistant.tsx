@@ -52,6 +52,7 @@ function AIAssistantPage() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [language, setLanguage] = useState<"en" | "my">("en");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auth guard — mirror the dashboard route's grace-period redirect.
@@ -91,7 +92,7 @@ function AIAssistantPage() {
 
     setThinking(true);
     try {
-      const res = await ask({ data: { messages: history } });
+      const res = await ask({ data: { language, messages: history } });
       setMsgs((p) => [...p, { id: crypto.randomUUID(), from: "bot", text: res.text, at: Date.now() }]);
     } catch {
       toast.error("Assistant is unavailable right now. Please try again.");
@@ -125,10 +126,30 @@ function AIAssistantPage() {
             <p className="text-xs text-muted-foreground">Ask about your work data</p>
           </div>
         </div>
-        <Badge variant="secondary" className="gap-1">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          {isElevated ? "Company-wide" : "Personal only"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-full border border-border p-0.5">
+            <button
+              onClick={() => setLanguage("en")}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                language === "en" ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"
+              }`}
+            >
+              English
+            </button>
+            <button
+              onClick={() => setLanguage("my")}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                language === "my" ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"
+              }`}
+            >
+              မြန်မာ
+            </button>
+          </div>
+          <Badge variant="secondary" className="hidden gap-1 sm:flex">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            {isElevated ? "Company-wide" : "Personal only"}
+          </Badge>
+        </div>
       </header>
 
       {/* Messages */}

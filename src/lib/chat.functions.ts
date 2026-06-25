@@ -10,6 +10,7 @@ const ChatInput = z.object({
   companyType: z.string().nullable().optional(),
   userName: z.string().optional(),
   wifiPassword: z.string().optional(),
+  language: z.enum(["en", "my"]).optional(),
   messages: z
     .array(
       z.object({
@@ -32,10 +33,18 @@ export const sendChat = createServerFn({ method: "POST" })
     if (data.userName) facts.push(`The current user's name is ${data.userName}.`);
     if (data.wifiPassword) facts.push(`The office Wi-Fi password is "${data.wifiPassword}".`);
 
+    const langInstruction =
+      data.language === "my"
+        ? `\n\nIMPORTANT: Always reply ONLY in Burmese (မြန်မာဘာသာ), regardless of the language the user writes in.`
+        : data.language === "en"
+          ? `\n\nIMPORTANT: Always reply ONLY in English, regardless of the language the user writes in.`
+          : "";
+
     const system =
       ctx.systemPrompt +
       (facts.length ? `\n\nKnown office data:\n${facts.join("\n")}` : "") +
       `\n\n${buildHolidayContext2026()}` +
+      langInstruction +
       `\n\nKeep replies concise and chat-friendly (use markdown when helpful).`;
 
     const gateway = createLovableAiGatewayProvider(key);
