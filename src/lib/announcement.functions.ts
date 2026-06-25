@@ -39,41 +39,49 @@ async function sendGmailToRecipients(
     return { sent: false, reason: "no_recipients" };
   }
 
-  // A single message with all addresses in Bcc keeps recipients private.
-  const headers = [
-    "To: undisclosed-recipients:;",
-    `Bcc: ${recipients.join(", ")}`,
-    `Subject: ${encodeHeader(subject)}`,
-    "MIME-Version: 1.0",
-    'Content-Type: text/plain; charset="UTF-8"',
-    "Content-Transfer-Encoding: 8bit",
-    "",
-    bodyText,
-  ].join("\r\n");
+  // Send one personal email per staff member. Gmail rejects placeholder
+  // "To: undisclosed-recipients:;" headers, so each message has a real
+  // recipient in its To header.
+  let sentCount = 0;
+  let lastDetail: string | undefined;
 
-  try {
-    const res = await fetch(`${GATEWAY_URL}/users/me/messages/send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": gmailKey,
-      },
-      body: JSON.stringify({ raw: toBase64Url(headers) }),
-    });
-    if (!res.ok) {
-      const detail = await res.text();
-      return { sent: false, reason: "email_error", detail: detail.slice(0, 300) };
+  for (const recipient of recipients) {
+    const headers = [
+      `To: ${recipient}`,
+      `Subject: ${encodeHeader(subject)}`,
+      "MIME-Version: 1.0",
+      'Content-Type: text/plain; charset="UTF-8"',
+      "Content-Transfer-Encoding: 8bit",
+      "",
+      bodyText,
+    ].join("\r\n");
+
+    try {
+      const res = await fetch(`${GATEWAY_URL}/users/me/messages/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": gmailKey,
+        },
+        body: JSON.stringify({ raw: toBase64Url(headers) }),
+      });
+      if (res.ok) {
+        sentCount += 1;
+      } else {
+        lastDetail = (await res.text()).slice(0, 300);
+      }
+    } catch (err) {
+      lastDetail = err instanceof Error ? err.message : "request failed";
     }
-    return { sent: true };
-  } catch (err) {
-    return {
-      sent: false,
-      reason: "email_error",
-      detail: err instanceof Error ? err.message : "request failed",
-    };
   }
+
+  if (sentCount === 0) {
+    return { sent: false, reason: "email_error", detail: lastDetail };
+  }
+  return { sent: true, count: sentCount };
 }
+
 
 /**
  * Broadcasts a published announcement to the company's Telegram group AND
