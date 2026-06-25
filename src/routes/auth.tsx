@@ -149,7 +149,7 @@ function AuthPage() {
                   </div>
                   <Button
                     className="w-full"
-                    disabled={!rName || !rEmail || !rPass || !cName}
+                    disabled={!rName || !rEmail || !rPass || !cName || !isStrongPassword(rPass)}
                     onClick={async () => {
                       if (!EMAIL_REGEX.test(rEmail)) {
                         toast.error("Enter a valid email like name@gmail.com");
