@@ -124,7 +124,7 @@ export function Dashboard() {
       {/* Sidebar */}
       <aside className="sticky top-0 flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar text-sidebar-foreground">
         <div className="flex items-center gap-2 px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background p-1">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background p-1 dark:bg-foreground dark:p-1.5 dark:shadow-sm">
             <img src={officeHubLogo} alt="OfficeHub logo" className="h-full w-full object-contain" />
           </div>
           <div>
