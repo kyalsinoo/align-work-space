@@ -110,6 +110,10 @@ Deno.serve(async (req) => {
 
     return json({ error: "Unknown action" }, 400);
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : "Request failed" }, 400);
+    console.error("[manage-staff] Error:", e);
+    const code = (e as { code?: string })?.code;
+    if (code === "23505") return json({ error: "User already exists" }, 409);
+    if (code === "23503") return json({ error: "Reference not found" }, 400);
+    return json({ error: "Operation failed. Please try again." }, 400);
   }
 });
