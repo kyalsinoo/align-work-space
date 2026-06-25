@@ -138,6 +138,10 @@ function RecruitmentPage() {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<CandidateAnalysis[]>([]);
   const [jobId, setJobId] = useState<string | null>(null);
+  // Uploaded CV files kept around so the owner can view/download them after analysis.
+  const [savedFiles, setSavedFiles] = useState<
+    { name: string; fileName: string; fileData: string }[]
+  >([]);
 
   // Chat
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
@@ -248,6 +252,15 @@ function RecruitmentPage() {
     setRunning(true);
     setResults([]);
     setMsgs([]);
+    setSavedFiles(
+      filled
+        .filter((c) => c.fileData)
+        .map((c) => ({
+          name: (c.name.trim() || c.fileName || "").toLowerCase(),
+          fileName: c.fileName || "cv",
+          fileData: c.fileData as string,
+        })),
+    );
     try {
       const res = await analyze({
         data: {
@@ -277,6 +290,21 @@ function RecruitmentPage() {
     } finally {
       setRunning(false);
     }
+  }
+
+  function findCvFor(name: string) {
+    if (!name) return undefined;
+    const key = name.toLowerCase();
+    return savedFiles.find((f) => f.name === key || f.name.includes(key) || key.includes(f.name));
+  }
+
+  function downloadCv(file: { fileName: string; fileData: string }) {
+    const a = document.createElement("a");
+    a.href = file.fileData;
+    a.download = file.fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
 
   async function sendChat(text: string) {
@@ -603,6 +631,27 @@ function RecruitmentPage() {
                               {c.recommendation}
                             </p>
                           )}
+                          {(() => {
+                            const cv = findCvFor(c.name);
+                            return cv ? (
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(cv.fileData, "_blank")}
+                                >
+                                  <FileText className="mr-1 h-4 w-4" /> View CV
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() => downloadCv(cv)}
+                                >
+                                  <Upload className="mr-1 h-4 w-4 rotate-180" /> Save CV
+                                </Button>
+                              </div>
+                            ) : null;
+                          })()}
                         </AccordionContent>
                       </AccordionItem>
                     ))}
