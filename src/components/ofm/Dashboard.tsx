@@ -132,8 +132,20 @@ export function Dashboard() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
+      {/* Mobile overlay */}
+      {mobileNavOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="sticky top-0 flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar text-sidebar-foreground">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar text-sidebar-foreground transition-transform duration-300 md:sticky md:top-0 md:z-auto md:translate-x-0 ${
+          mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex items-center gap-2 px-5 py-5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background p-1 dark:bg-foreground dark:p-1.5 dark:shadow-sm">
             <img src={officeHubLogo} alt="OfficeHub logo" className="h-full w-full object-contain" />
@@ -147,13 +159,12 @@ export function Dashboard() {
           {nav.map((n) => (
             <button
               key={n.key}
-              onClick={() =>
-                n.key === "ai-assistant"
-                  ? navigate({ to: "/ai-assistant" })
-                  : n.key === "recruitment"
-                    ? navigate({ to: "/recruitment-ranking" })
-                    : setView(n.key)
-              }
+              onClick={() => {
+                if (n.key === "ai-assistant") navigate({ to: "/ai-assistant" });
+                else if (n.key === "recruitment") navigate({ to: "/recruitment-ranking" });
+                else setView(n.key);
+                setMobileNavOpen(false);
+              }}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 view === n.key
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
@@ -184,15 +195,26 @@ export function Dashboard() {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-x-hidden">
-        <header className="flex items-center justify-between border-b border-border bg-card px-8 py-4">
-          <div>
-            <h1 className="text-xl font-bold capitalize">{nav.find((n) => n.key === view)?.label}</h1>
-            <p className="text-xs text-muted-foreground">{ROLE_LABELS[role]} workspace</p>
+      <main className="min-w-0 flex-1 overflow-x-hidden">
+        <header className="flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-4 md:px-8">
+          <div className="flex min-w-0 items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 md:hidden"
+              onClick={() => setMobileNavOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-bold capitalize">{nav.find((n) => n.key === view)?.label}</h1>
+              <p className="text-xs text-muted-foreground">{ROLE_LABELS[role]} workspace</p>
+            </div>
           </div>
           <ThemeToggle />
         </header>
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           {view === "dashboard" && <DashboardView role={role} />}
           {view === "employees" && <EmployeesView role={role} />}
           {view === "tasks" && <TasksView role={role} />}
