@@ -126,10 +126,30 @@ function AIAssistantPage() {
             <p className="text-xs text-muted-foreground">Ask about your work data</p>
           </div>
         </div>
-        <Badge variant="secondary" className="gap-1">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          {isElevated ? "Company-wide" : "Personal only"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-full border border-border p-0.5">
+            <button
+              onClick={() => setLanguage("en")}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                language === "en" ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"
+              }`}
+            >
+              English
+            </button>
+            <button
+              onClick={() => setLanguage("my")}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                language === "my" ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"
+              }`}
+            >
+              မြန်မာ
+            </button>
+          </div>
+          <Badge variant="secondary" className="hidden gap-1 sm:flex">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            {isElevated ? "Company-wide" : "Personal only"}
+          </Badge>
+        </div>
       </header>
 
       {/* Messages */}
