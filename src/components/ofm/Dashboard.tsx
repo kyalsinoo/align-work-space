@@ -99,6 +99,7 @@ export function Dashboard() {
     { key: "events" as ViewKey, label: "Events", icon: PartyPopper },
     { key: "announcements" as ViewKey, label: "Announcements", icon: Megaphone },
     { key: "ai-summary" as ViewKey, label: "AI Data Summary", icon: Sparkles },
+    { key: "ai-assistant" as ViewKey, label: "AI Assistant", icon: MessageCircle },
     { key: "insights" as ViewKey, label: "Saved AI Insights", icon: Bookmark },
     ...(role === "admin" ? [{ key: "settings" as ViewKey, label: "Settings", icon: Settings }] : []),
   ];
