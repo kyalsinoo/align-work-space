@@ -157,7 +157,7 @@ function SortableCandidate({
   candidate: CandidateInput;
   index: number;
   highlight: boolean;
-  nameRef?: React.RefObject<HTMLInputElement>;
+  nameRef?: React.RefObject<HTMLInputElement | null>;
   onUpdateName: (value: string) => void;
   onRequestDelete: () => void;
   onFile: (file: File | null) => void;
