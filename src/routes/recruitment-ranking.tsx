@@ -631,6 +631,27 @@ function RecruitmentPage() {
                               {c.recommendation}
                             </p>
                           )}
+                          {(() => {
+                            const cv = findCvFor(c.name);
+                            return cv ? (
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(cv.fileData, "_blank")}
+                                >
+                                  <FileText className="mr-1 h-4 w-4" /> View CV
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() => downloadCv(cv)}
+                                >
+                                  <Upload className="mr-1 h-4 w-4 rotate-180" /> Save CV
+                                </Button>
+                              </div>
+                            ) : null;
+                          })()}
                         </AccordionContent>
                       </AccordionItem>
                     ))}
