@@ -150,8 +150,9 @@ interface OFMContextValue {
   endTask: (id: string) => Promise<void>;
   addLeave: (data: { name: string; reason: string; userId?: string }) => Promise<void>;
   setLeaveStatus: (id: string, status: "approved" | "rejected") => Promise<void>;
-  checkIn: () => Promise<void>;
-  checkOut: () => Promise<void>;
+  checkIn: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
+  checkOut: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
+  saveCompanyLocation: (data: { latitude: number; longitude: number; geofenceRadius: number }) => Promise<void>;
   setWifiPassword: (pw: string) => Promise<void>;
   saveTelegramSettings: (data: { botToken: string; chatId: string }) => Promise<void>;
   publishAnnouncement: (data: { title: string; content: string }) => Promise<{ sent: boolean; reason?: string }>;
