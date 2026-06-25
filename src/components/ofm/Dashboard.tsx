@@ -439,7 +439,7 @@ function TasksView({ role }: { role: Role }) {
   const availableRoles = ASSIGN_ROLES;
 
   function selectRole(r: Role) {
-    setRoles([r]);
+    setRoles(r ? [r] : []);
   }
 
   // Staff: read-only list of all tasks; they can only End tasks assigned to
@@ -503,14 +503,17 @@ function TasksView({ role }: { role: Role }) {
           <div className="space-y-2">
             <Label>Assign to role <span className="text-destructive">*</span></Label>
             <p className="text-xs text-muted-foreground">Choose one role for this task</p>
-            <RadioGroup value={roles[0] ?? ""} onValueChange={(v) => selectRole(v as Role)} className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4">
               {availableRoles.map((r) => (
                 <label key={r} className="flex items-center gap-2 text-sm">
-                  <RadioGroupItem value={r} />
+                  <Checkbox
+                    checked={roles[0] === r}
+                    onCheckedChange={(c) => selectRole(c ? (r as Role) : ("" as Role))}
+                  />
                   {ROLE_LABELS[r]}
                 </label>
               ))}
-            </RadioGroup>
+            </div>
           </div>
           <Button
             className="w-full"
