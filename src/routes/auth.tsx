@@ -30,6 +30,8 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function AuthPage() {
   const { registerCompany, signIn, hasSession, currentUser } = useOFM();
   const navigate = useNavigate();
