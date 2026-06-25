@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import officeHubLogo from "@/assets/officehub-logo.png";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   LayoutDashboard,
   Users,
