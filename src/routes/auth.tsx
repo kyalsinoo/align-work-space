@@ -104,7 +104,13 @@ function AuthPage() {
                   <p className="text-sm text-muted-foreground">Company Registration <span className="text-xs">(Admin)</span></p>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1"><Label>Full Name</Label><Input placeholder="Full name" value={rName} onChange={(e) => setRName(e.target.value)} /></div>
-                    <div className="space-y-1"><Label>Email</Label><Input type="email" value={rEmail} onChange={(e) => setREmail(e.target.value)} /></div>
+                    <div className="space-y-1">
+                      <Label>Email</Label>
+                      <Input type="email" placeholder="name@gmail.com" value={rEmail} onChange={(e) => setREmail(e.target.value)} />
+                      {rEmail && !EMAIL_REGEX.test(rEmail) && (
+                        <p className="text-xs text-destructive">Enter a valid email like name@gmail.com</p>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <Label>Password</Label>
