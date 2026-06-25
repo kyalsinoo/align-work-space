@@ -114,6 +114,7 @@ export function Chatbot({ variant = "staff" }: Props) {
           companyType: company?.type ?? null,
           userName: currentUser.name,
           wifiPassword,
+          language,
           messages: history,
         },
       });
