@@ -255,6 +255,92 @@ export type Database = {
           },
         ]
       }
+      recruitment_candidates: {
+        Row: {
+          analysis: Json
+          company_id: string
+          created_at: string
+          id: string
+          job_id: string
+          name: string
+          profile: Json
+          score: number
+          status: string
+        }
+        Insert: {
+          analysis?: Json
+          company_id: string
+          created_at?: string
+          id?: string
+          job_id: string
+          name: string
+          profile?: Json
+          score?: number
+          status?: string
+        }
+        Update: {
+          analysis?: Json
+          company_id?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          name?: string
+          profile?: Json
+          score?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruitment_candidates_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "recruitment_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recruitment_jobs: {
+        Row: {
+          additional_requirements: string
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          industry: string
+          min_experience: number
+          preferred_skills: string[]
+          required_education: string
+          required_skills: string[]
+          title: string
+        }
+        Insert: {
+          additional_requirements?: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          industry?: string
+          min_experience?: number
+          preferred_skills?: string[]
+          required_education?: string
+          required_skills?: string[]
+          title: string
+        }
+        Update: {
+          additional_requirements?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          industry?: string
+          min_experience?: number
+          preferred_skills?: string[]
+          required_education?: string
+          required_skills?: string[]
+          title?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           company_id: string
