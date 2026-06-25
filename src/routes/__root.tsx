@@ -130,6 +130,15 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    const stored = window.localStorage.getItem("officehub-theme");
+    const isDark =
+      stored === "dark" ||
+      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+
+
   return (
     <QueryClientProvider client={queryClient}>
       <OFMProvider>
