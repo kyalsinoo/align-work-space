@@ -146,6 +146,15 @@ export const summarizeData = createServerFn({ method: "POST" })
         currentlyOnLeave: (onLeave.data ?? []).map((l) => l.name),
         leaveRequestsThisMonth: leavesThisMonth.data ?? [],
         topLeaveApplicantsThisMonth: topApplicants,
+        attendanceThisMonth: (attendanceThisMonth.data ?? []).map((a) => ({
+          name: a.user_name,
+          date: a.date,
+          checkIn: a.check_in,
+          checkOut: a.check_out,
+        })),
+        attendanceTodayCheckedIn: (attendanceThisMonth.data ?? [])
+          .filter((a) => a.date === new Date().toISOString().slice(0, 10) && a.check_in)
+          .map((a) => a.user_name),
       };
     } else {
       // STAFF: strictly personal data only.
