@@ -220,18 +220,34 @@ function Landing() {
         </div>
         <div className="grid gap-6 sm:grid-cols-3">
           {[
-            { icon: Mail, label: "Email", value: "marketing@officehubmm.com" },
-            { icon: Phone, label: "Phone", value: "+95 9 123 456 789" },
-            { icon: MapPin, label: "Address", value: "Yangon, Myanmar" },
-          ].map((c) => (
-            <Card key={c.label}>
-              <CardContent className="flex flex-col items-center gap-2 p-8 text-center">
-                <c.icon className="h-8 w-8 text-primary" />
+            { icon: Mail, label: "Email", value: "marketing@officehubmm.com", href: "mailto:marketing@officehubmm.com" },
+            { icon: Phone, label: "Phone", value: "+95 9 123 456 789", href: "tel:+959123456789" },
+            { icon: MapPin, label: "Address", value: "Yangon, Myanmar", href: null },
+          ].map((c) => {
+            const inner = (
+              <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <c.icon className="h-6 w-6" />
+                </div>
                 <div className="font-medium">{c.label}</div>
-                <div className="text-sm text-muted-foreground">{c.value}</div>
+                <div className="break-all text-sm text-muted-foreground">{c.value}</div>
               </CardContent>
-            </Card>
-          ))}
+            );
+            return (
+              <Card
+                key={c.label}
+                className="group transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-elegant"
+              >
+                {c.href ? (
+                  <a href={c.href} className="block">
+                    {inner}
+                  </a>
+                ) : (
+                  inner
+                )}
+              </Card>
+            );
+          })}
         </div>
       </section>
 
