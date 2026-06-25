@@ -103,7 +103,12 @@ export function Dashboard() {
     { key: "ai-summary" as ViewKey, label: "AI Data Summary", icon: Sparkles },
     { key: "ai-assistant" as ViewKey, label: "AI Assistant", icon: MessageCircle },
     { key: "insights" as ViewKey, label: "Saved AI Insights", icon: Bookmark },
-    ...(role === "admin" ? [{ key: "settings" as ViewKey, label: "Settings", icon: Settings }] : []),
+    ...(role === "admin"
+      ? [
+          { key: "recruitment" as ViewKey, label: "Recruitment Ranking", icon: Trophy },
+          { key: "settings" as ViewKey, label: "Settings", icon: Settings },
+        ]
+      : []),
   ];
 
   return (
