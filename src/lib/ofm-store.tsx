@@ -153,7 +153,7 @@ interface OFMContextValue {
   deleteStaff: (id: string) => Promise<void>;
   createTask: (data: { title: string; description: string; roles: Role[] }) => Promise<void>;
   endTask: (id: string) => Promise<void>;
-  addLeave: (data: { name: string; reason: string; userId?: string }) => Promise<void>;
+  addLeave: (data: { name: string; reason: string; userId?: string; startDate?: string; endDate?: string; days?: number }) => Promise<void>;
   setLeaveStatus: (id: string, status: "approved" | "rejected") => Promise<void>;
   checkIn: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
   checkOut: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
