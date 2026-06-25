@@ -554,7 +554,12 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       await refresh(uid);
       const result = await broadcastAnnouncement({ data: { title, content } });
-      return { sent: result.sent, reason: "reason" in result ? result.reason : undefined };
+      return {
+        sent: result.sent,
+        reason: "reason" in result ? result.reason : undefined,
+        email: result.email,
+        telegram: result.telegram,
+      };
     },
 
 
