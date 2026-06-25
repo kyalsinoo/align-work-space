@@ -456,7 +456,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       await refresh(uid);
     },
 
-    addLeave: async ({ name, reason, userId }) => {
+    addLeave: async ({ name, reason, userId, startDate, endDate, days }) => {
       if (!company) return;
       const { error } = await supabase.from("leaves").insert({
         company_id: company.id,
@@ -464,6 +464,9 @@ export function OFMProvider({ children }: { children: ReactNode }) {
         name,
         reason,
         status: "pending",
+        start_date: startDate ?? null,
+        end_date: endDate ?? null,
+        days: days ?? null,
       });
       if (error) throw error;
       await refresh(uid);
