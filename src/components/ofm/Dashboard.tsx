@@ -446,14 +446,22 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
         </div>
         <DialogFooter>
           <Button
-            disabled={!name || !email || !password}
-            onClick={() => {
+            disabled={!name || !email || !password || saving}
+            onClick={async () => {
               if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error("Enter a valid email like name@gmail.com"); return; }
               if (!isStrongPassword(password)) { toast.error("Password must be 8+ chars with an uppercase letter, a number and a special character"); return; }
-              onSave({ name, email, password, role }); setOpen(false);
+              setSaving(true);
+              try {
+                await onSave({ name, email, password, role });
+                setOpen(false);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Failed to save staff account");
+              } finally {
+                setSaving(false);
+              }
             }}
           >
-            Save
+            {saving ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
