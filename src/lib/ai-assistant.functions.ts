@@ -236,10 +236,17 @@ export const askAssistant = createServerFn({ method: "POST" })
       };
     }
 
+    const langRule =
+      data.language === "my"
+        ? `Always reply ONLY in Burmese (မြန်မာ), regardless of the language the user writes in. `
+        : data.language === "en"
+          ? `Always reply ONLY in English, regardless of the language the user writes in. `
+          : `Reply in the same language the user writes in (English or Burmese/မြန်မာ). `;
+
     const system =
       `You are the OFM AI Assistant — a helpful, professional office assistant. ` +
       `Analyze ONLY the provided JSON data context and answer the user's question clearly. ` +
-      `Reply in the same language the user writes in (English or Burmese/မြန်မာ). ` +
+      langRule +
       `Use Markdown: short bullet points, bold key numbers, and small tables when useful.\n\n` +
       `PRIVACY & ACCESS RULES (strict):\n` +
       `- Company profit, revenue, and financial analytics are NEVER available to anyone. ` +
