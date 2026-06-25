@@ -34,6 +34,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -406,7 +407,7 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
           <div className="space-y-1"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
           <div className="space-y-1">
             <Label>Password</Label>
-            <Input value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
             <p className={`text-xs ${password && password.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
               Password must be at least 8 characters
             </p>

@@ -5,6 +5,7 @@ import officeHubLogo from "@/assets/officehub-logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -76,7 +77,7 @@ function AuthPage() {
               <Card>
                 <CardContent className="space-y-3 pt-6">
                   <div className="space-y-1"><Label>Email</Label><Input type="email" value={sEmail} onChange={(e) => setSEmail(e.target.value)} /></div>
-                  <div className="space-y-1"><Label>Password</Label><Input type="password" value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
+                  <div className="space-y-1"><Label>Password</Label><PasswordInput value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
                   <Button
                     className="w-full"
                     onClick={async () => {
@@ -105,7 +106,7 @@ function AuthPage() {
                   </div>
                   <div className="space-y-1">
                     <Label>Password</Label>
-                    <Input type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} />
+                    <PasswordInput value={rPass} onChange={(e) => setRPass(e.target.value)} />
                     <p className={`text-xs ${rPass && rPass.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
                       Password must be at least 8 characters
                     </p>
