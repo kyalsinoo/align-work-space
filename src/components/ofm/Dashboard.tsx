@@ -55,6 +55,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Chatbot } from "@/components/ofm/Chatbot";
+import { DataSummaryChat } from "@/components/ofm/DataSummaryChat";
 import { useOFM, ROLE_LABELS, getLeaveUsage, LEAVE_LIMIT_DAYS, type Role, type User } from "@/lib/ofm-store";
 import { useSavedInsights } from "@/lib/saved-insights";
 import { generateEvent } from "@/lib/event.functions";
@@ -71,6 +72,7 @@ type ViewKey =
   | "events"
   | "announcements"
   | "insights"
+  | "ai-summary"
   | "settings";
 
 const STAFF_ROLES: Role[] = ["manager", "sales", "developer"];
@@ -96,6 +98,7 @@ export function Dashboard() {
     { key: "attendance", label: "Attendance", icon: Clock },
     { key: "events" as ViewKey, label: "Events", icon: PartyPopper },
     { key: "announcements" as ViewKey, label: "Announcements", icon: Megaphone },
+    { key: "ai-summary" as ViewKey, label: "AI Data Summary", icon: Sparkles },
     { key: "insights" as ViewKey, label: "Saved AI Insights", icon: Bookmark },
     ...(role === "admin" ? [{ key: "settings" as ViewKey, label: "Settings", icon: Settings }] : []),
   ];
@@ -164,6 +167,7 @@ export function Dashboard() {
           {view === "events" && <EventsView role={role} />}
           {view === "announcements" && <AnnouncementsView role={role} />}
           {view === "insights" && <SavedInsightsView />}
+          {view === "ai-summary" && <DataSummaryChat role={role} />}
           {view === "settings" && <SettingsView />}
         </div>
       </main>
