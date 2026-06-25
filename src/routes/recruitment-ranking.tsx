@@ -431,12 +431,34 @@ function RecruitmentPage() {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Textarea
-                    value={c.resume}
-                    onChange={(e) => updateCandidate(c.id, "resume", e.target.value)}
-                    placeholder="Paste resume / CV text here…"
-                    rows={4}
-                  />
+                  {c.fileData ? (
+                    <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
+                      <span className="flex min-w-0 items-center gap-2 text-sm">
+                        <FileText className="h-4 w-4 shrink-0 text-primary" />
+                        <span className="truncate">{c.fileName}</span>
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => clearFile(c.id)}
+                        className="h-7 shrink-0 px-2 text-xs"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ) : (
+                    <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-muted/30 px-3 py-5 text-center text-sm text-muted-foreground transition-colors hover:bg-accent">
+                      <Upload className="h-5 w-5" />
+                      <span>Upload resume/CV file or picture</span>
+                      <span className="text-xs">PDF, DOC, TXT, or image (max 10MB)</span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*,.pdf,.doc,.docx,.txt"
+                        onChange={(e) => handleFile(c.id, e.target.files?.[0] ?? null)}
+                      />
+                    </label>
+                  )}
                 </div>
               ))}
               <Button onClick={runAnalysis} disabled={running} className="w-full">
