@@ -76,7 +76,7 @@ function AuthPage() {
               <Card>
                 <CardContent className="space-y-3 pt-6">
                   <div className="space-y-1"><Label>Email</Label><Input type="email" value={sEmail} onChange={(e) => setSEmail(e.target.value)} /></div>
-                  <div className="space-y-1"><Label>Password</Label><Input type="password" value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
+                  <div className="space-y-1"><Label>Password</Label><PasswordInput value={sPass} onChange={(e) => setSPass(e.target.value)} /></div>
                   <Button
                     className="w-full"
                     onClick={async () => {
