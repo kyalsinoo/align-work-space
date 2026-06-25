@@ -512,13 +512,13 @@ function TasksView({ role }: { role: Role }) {
           <div className="space-y-1"><Label>Description</Label><Textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} /></div>
           <div className="space-y-2">
             <Label>Assign to role <span className="text-destructive">*</span></Label>
-            <p className="text-xs text-muted-foreground">Choose one role for this task</p>
+            <p className="text-xs text-muted-foreground">Choose one or more roles for this task</p>
             <div className="flex flex-wrap gap-4">
               {availableRoles.map((r) => (
                 <label key={r} className="flex items-center gap-2 text-sm">
                   <Checkbox
-                    checked={roles[0] === r}
-                    onCheckedChange={(c) => selectRole(c ? (r as Role) : ("" as Role))}
+                    checked={roles.includes(r)}
+                    onCheckedChange={(c) => toggleRole(r, !!c)}
                   />
                   {ROLE_LABELS[r]}
                 </label>
