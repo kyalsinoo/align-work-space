@@ -216,7 +216,7 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       ]);
 
       if (companyRes.data) {
-        setCompany({ id: companyRes.data.id, name: companyRes.data.name, type: companyRes.data.type });
+        setCompany({ id: companyRes.data.id, name: companyRes.data.name, type: companyRes.data.type, latitude: companyRes.data.latitude ?? null, longitude: companyRes.data.longitude ?? null, geofenceRadius: companyRes.data.geofence_radius ?? 200 });
         setWifiPw(companyRes.data.wifi_password ?? "");
         setTelegramBotToken(companyRes.data.telegram_bot_token ?? "");
         setTelegramChatId(companyRes.data.telegram_chat_id ?? "");
