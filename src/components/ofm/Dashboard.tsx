@@ -537,9 +537,6 @@ function TasksView({ role }: { role: Role }) {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={t.status === "ended" ? "secondary" : "default"}>{t.status}</Badge>
-                {t.status === "active" && (
-                  <Button size="sm" variant="outline" onClick={() => { endTask(t.id); toast.success("Task ended"); }}>End</Button>
-                )}
               </div>
             </div>
           ))}
