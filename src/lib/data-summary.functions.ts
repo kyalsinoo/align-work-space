@@ -127,6 +127,7 @@ export const summarizeData = createServerFn({ method: "POST" })
 
       dataContext = {
         scope: "company-wide",
+        companyDirectory: directory,
         viewerRole: primaryRole,
         viewerName: userName,
         endedTasksThisWeek: (endedTasks.data ?? []).map((t) => ({
