@@ -61,7 +61,7 @@ export function DataSummaryChat({ role }: { role: Role }) {
 
     setThinking(true);
     try {
-      const res = await summarize({ data: { messages: history } });
+      const res = await summarize({ data: { language, messages: history } });
       setMsgs((p) => [...p, { id: crypto.randomUUID(), from: "bot", text: res.text }]);
     } catch {
       toast.error("Assistant is unavailable right now. Please try again.");
