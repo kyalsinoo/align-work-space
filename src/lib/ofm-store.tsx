@@ -98,6 +98,12 @@ export interface Attendance {
   date: string;
   checkIn?: string;
   checkOut?: string;
+  checkInLat?: number | null;
+  checkInLng?: number | null;
+  checkOutLat?: number | null;
+  checkOutLng?: number | null;
+  checkInPhoto?: string | null;
+  checkOutPhoto?: string | null;
 }
 
 export interface OfmEvent {
