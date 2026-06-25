@@ -220,7 +220,7 @@ function Landing() {
         </div>
         <div className="grid gap-6 sm:grid-cols-3">
           {[
-            { icon: Mail, label: "Email", value: "hello@ofm.app" },
+            { icon: Mail, label: "Email", value: "marketing@officehubmm.com" },
             { icon: Phone, label: "Phone", value: "+95 9 123 456 789" },
             { icon: MapPin, label: "Address", value: "Yangon, Myanmar" },
           ].map((c) => (
