@@ -414,9 +414,16 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
           <div className="space-y-1">
             <Label>Password</Label>
             <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
-            <p className={`text-xs ${password && password.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
-              Password must be at least 8 characters
-            </p>
+            <ul className="space-y-0.5 pt-1">
+              {STAFF_PASSWORD_RULES.map((r) => {
+                const ok = r.test(password);
+                return (
+                  <li key={r.label} className={`text-xs ${password ? (ok ? "text-green-600" : "text-destructive") : "text-muted-foreground"}`}>
+                    {password && ok ? "✓" : "•"} {r.label}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           <div className="space-y-1">
             <Label>Role</Label>
