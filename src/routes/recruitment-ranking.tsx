@@ -254,6 +254,17 @@ function RecruitmentPage() {
   function removeCandidate(id: string) {
     setCandidates((p) => (p.length > 1 ? p.filter((c) => c.id !== id) : p));
   }
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setCandidates((p) => {
+      const oldIndex = p.findIndex((c) => c.id === active.id);
+      const newIndex = p.findIndex((c) => c.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return p;
+      return arrayMove(p, oldIndex, newIndex);
+    });
+  }
+
 
   function updateCandidate(id: string, field: "name" | "resume", value: string) {
     setCandidates((p) => p.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
