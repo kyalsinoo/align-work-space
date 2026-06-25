@@ -89,6 +89,9 @@ interface CandidateInput {
   id: string;
   name: string;
   resume: string;
+  fileName?: string;
+  fileData?: string; // data URL
+  mimeType?: string;
 }
 
 interface ChatMsg {
