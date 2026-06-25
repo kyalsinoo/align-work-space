@@ -448,7 +448,7 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
             disabled={!name || !email || !password}
             onClick={() => {
               if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error("Enter a valid email like name@gmail.com"); return; }
-              if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+              if (!isStrongPassword(password)) { toast.error("Password must be 8+ chars with an uppercase letter, a number and a special character"); return; }
               onSave({ name, email, password, role }); setOpen(false);
             }}
           >
