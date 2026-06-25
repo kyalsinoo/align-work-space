@@ -23,11 +23,19 @@ const AnalyzeInput = z.object({
     .array(
       z.object({
         name: z.string().max(200).optional(),
-        resume: z.string().min(1).max(12000),
+        // Either pasted text OR an uploaded file (image/PDF/text) as a data URL.
+        resume: z.string().max(12000).default(""),
+        fileName: z.string().max(300).optional(),
+        mimeType: z.string().max(120).optional(),
+        // data URL: "data:<mime>;base64,...."  (capped ~10MB encoded)
+        fileData: z.string().max(14_000_000).optional(),
       }),
     )
     .min(1)
-    .max(25),
+    .max(25)
+    .refine((arr) => arr.every((c) => c.resume.trim() || c.fileData), {
+      message: "Each candidate needs resume text or an uploaded file.",
+    }),
 });
 
 const ChatInput = z.object({
@@ -122,15 +130,43 @@ export const analyzeRecruitment = createServerFn({ method: "POST" })
       `Return ONLY a JSON array (no prose, no markdown) where each item matches:\n` +
       `{"name","status","reason","score","skillsScore","experienceScore","educationScore","experienceYears","education","industry","jobTitles":[],"skills":[],"certifications":[],"projects","strengths":[],"weaknesses":[],"missingSkills":[],"experienceGaps","educationMatch","recommendation"}`;
 
-    const userPrompt =
-      `JOB REQUIREMENTS:\n${JSON.stringify(job)}\n\n` +
-      `CANDIDATES (resume text):\n` +
-      candidates
-        .map(
-          (c, i) =>
-            `--- Candidate ${i + 1}${c.name ? ` (${c.name})` : ""} ---\n${c.resume}`,
-        )
-        .join("\n\n");
+    // Build a single multimodal user message: job requirements as text,
+    // then each candidate's resume as pasted text and/or an uploaded file.
+    type Part =
+      | { type: "text"; text: string }
+      | { type: "image"; image: string }
+      | { type: "file"; data: string; mediaType: string; filename?: string };
+
+    const content: Part[] = [
+      {
+        type: "text",
+        text:
+          `JOB REQUIREMENTS:\n${JSON.stringify(job)}\n\n` +
+          `CANDIDATES follow. Each candidate may include pasted resume text and/or an ` +
+          `uploaded resume/CV file (image or document). Read the attached files to extract the candidate's details.`,
+      },
+    ];
+    candidates.forEach((c, i) => {
+      content.push({
+        type: "text",
+        text: `\n--- Candidate ${i + 1}${c.name ? ` (${c.name})` : ""} ---${
+          c.resume.trim() ? `\n${c.resume.trim()}` : ""
+        }`,
+      });
+      if (c.fileData) {
+        const mime = c.mimeType || "application/octet-stream";
+        if (mime.startsWith("image/")) {
+          content.push({ type: "image", image: c.fileData });
+        } else {
+          content.push({
+            type: "file",
+            data: c.fileData,
+            mediaType: mime,
+            filename: c.fileName,
+          });
+        }
+      }
+    });
 
     const gateway = createLovableAiGatewayProvider(key);
     let parsed: CandidateAnalysis[];
@@ -138,7 +174,7 @@ export const analyzeRecruitment = createServerFn({ method: "POST" })
       const { text } = await generateText({
         model: gateway("google/gemini-3-flash-preview"),
         system,
-        prompt: userPrompt,
+        messages: [{ role: "user", content } as ModelMessage],
       });
       const json = extractJson(text);
       parsed = (Array.isArray(json) ? json : [json]) as CandidateAnalysis[];

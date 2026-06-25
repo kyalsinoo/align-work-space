@@ -12,6 +12,8 @@ import {
   Plus,
   Trash2,
   ShieldCheck,
+  Upload,
+  FileText,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useServerFn } from "@tanstack/react-start";
@@ -89,6 +91,9 @@ interface CandidateInput {
   id: string;
   name: string;
   resume: string;
+  fileName?: string;
+  fileData?: string; // data URL
+  mimeType?: string;
 }
 
 interface ChatMsg {
@@ -195,14 +200,49 @@ function RecruitmentPage() {
     setCandidates((p) => p.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
   }
 
+  function handleFile(id: string, file: File | null) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File is too large (max 10MB).");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCandidates((p) =>
+        p.map((c) =>
+          c.id === id
+            ? {
+                ...c,
+                fileName: file.name,
+                fileData: reader.result as string,
+                mimeType: file.type || "application/octet-stream",
+              }
+            : c,
+        ),
+      );
+    };
+    reader.onerror = () => toast.error("Could not read the file.");
+    reader.readAsDataURL(file);
+  }
+
+  function clearFile(id: string) {
+    setCandidates((p) =>
+      p.map((c) =>
+        c.id === id
+          ? { ...c, fileName: undefined, fileData: undefined, mimeType: undefined }
+          : c,
+      ),
+    );
+  }
+
   async function runAnalysis() {
     if (!title.trim()) {
       toast.error("Please enter a job title.");
       return;
     }
-    const filled = candidates.filter((c) => c.resume.trim());
+    const filled = candidates.filter((c) => c.fileData || c.resume.trim());
     if (filled.length === 0) {
-      toast.error("Add at least one candidate resume.");
+      toast.error("Upload at least one candidate file.");
       return;
     }
     setRunning(true);
@@ -223,6 +263,9 @@ function RecruitmentPage() {
           candidates: filled.map((c) => ({
             name: c.name.trim() || undefined,
             resume: c.resume.trim(),
+            fileName: c.fileName,
+            mimeType: c.mimeType,
+            fileData: c.fileData,
           })),
         },
       });
@@ -364,7 +407,7 @@ function RecruitmentPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base">Candidates</CardTitle>
-                  <CardDescription>Paste each applicant's resume.</CardDescription>
+                  <CardDescription>Upload each applicant's resume/CV (image or document).</CardDescription>
                 </div>
                 <Button size="sm" variant="outline" onClick={addCandidate}>
                   <Plus className="mr-1 h-4 w-4" /> Add
@@ -390,12 +433,34 @@ function RecruitmentPage() {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Textarea
-                    value={c.resume}
-                    onChange={(e) => updateCandidate(c.id, "resume", e.target.value)}
-                    placeholder="Paste resume / CV text here…"
-                    rows={4}
-                  />
+                  {c.fileData ? (
+                    <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
+                      <span className="flex min-w-0 items-center gap-2 text-sm">
+                        <FileText className="h-4 w-4 shrink-0 text-primary" />
+                        <span className="truncate">{c.fileName}</span>
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => clearFile(c.id)}
+                        className="h-7 shrink-0 px-2 text-xs"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ) : (
+                    <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-muted/30 px-3 py-5 text-center text-sm text-muted-foreground transition-colors hover:bg-accent">
+                      <Upload className="h-5 w-5" />
+                      <span>Upload resume/CV file or picture</span>
+                      <span className="text-xs">PDF, DOC, TXT, or image (max 10MB)</span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*,.pdf,.doc,.docx,.txt"
+                        onChange={(e) => handleFile(c.id, e.target.files?.[0] ?? null)}
+                      />
+                    </label>
+                  )}
                 </div>
               ))}
               <Button onClick={runAnalysis} disabled={running} className="w-full">
