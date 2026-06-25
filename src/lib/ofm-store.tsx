@@ -271,6 +271,9 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           reason: l.reason,
           status: l.status as Leave["status"],
           createdAt: l.created_at,
+          startDate: l.start_date ?? null,
+          endDate: l.end_date ?? null,
+          days: l.days ?? null,
         })),
       );
 
