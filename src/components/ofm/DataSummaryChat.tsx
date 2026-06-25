@@ -42,6 +42,7 @@ export function DataSummaryChat({ role }: { role: Role }) {
   ]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [language, setLanguage] = useState<"en" | "my">("my");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
