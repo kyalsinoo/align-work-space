@@ -74,6 +74,28 @@ export const summarizeData = createServerFn({ method: "POST" })
     const weekStart = startOfWeekISO();
     const monthStart = startOfMonthISO();
 
+    // ----- Company directory (name per role) — visible to everyone in the
+    // same company via RLS; used to answer "who is the admin/manager/etc." -----
+    const { data: roleRowsAll } = await supabase
+      .from("user_roles")
+      .select("user_id, role");
+    const { data: profileRows } = await supabase
+      .from("profiles")
+      .select("id, full_name, email");
+    const nameById = new Map(
+      (profileRows ?? []).map((p) => [
+        p.id as string,
+        (p.full_name as string) || (p.email as string) || "Unknown",
+      ]),
+    );
+    const directory: Record<string, string[]> = {};
+    for (const r of roleRowsAll ?? []) {
+      const roleKey = r.role as string;
+      const name = nameById.get(r.user_id as string);
+      if (!name) continue;
+      (directory[roleKey] ??= []).push(name);
+    }
+
     // ----- Build the JSON context per role -----
     let dataContext: Record<string, unknown>;
 
