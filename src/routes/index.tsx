@@ -65,9 +65,12 @@ function Landing() {
             <a href="#packages" className="hover:text-foreground">Packages</a>
             <a href="#contact" className="hover:text-foreground">Contact Us</a>
           </nav>
-          <Button asChild size="sm">
-            <Link to="/auth">Start Your Project</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button asChild size="sm">
+              <Link to="/auth">Start Your Project</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
