@@ -467,13 +467,13 @@ export function OFMProvider({ children }: { children: ReactNode }) {
       await refresh(uid);
     },
 
-    checkIn: async () => {
+    checkIn: async ({ lat, lng, photo }) => {
       if (!company || !currentUser) return;
       const date = new Date().toISOString().slice(0, 10);
       const existing = attendance.find((a) => a.userId === currentUser.id && a.date === date);
       if (existing) {
         if (existing.checkIn) return;
-        const { error } = await supabase.from("attendance").update({ check_in: nowTime() }).eq("id", existing.id);
+        const { error } = await supabase.from("attendance").update({ check_in: nowTime(), check_in_lat: lat, check_in_lng: lng, check_in_photo: photo }).eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("attendance").insert({
@@ -482,18 +482,21 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           user_name: currentUser.name,
           date,
           check_in: nowTime(),
+          check_in_lat: lat,
+          check_in_lng: lng,
+          check_in_photo: photo,
         });
         if (error) throw error;
       }
       await refresh(uid);
     },
 
-    checkOut: async () => {
+    checkOut: async ({ lat, lng, photo }) => {
       if (!company || !currentUser) return;
       const date = new Date().toISOString().slice(0, 10);
       const existing = attendance.find((a) => a.userId === currentUser.id && a.date === date);
       if (existing) {
-        const { error } = await supabase.from("attendance").update({ check_out: nowTime() }).eq("id", existing.id);
+        const { error } = await supabase.from("attendance").update({ check_out: nowTime(), check_out_lat: lat, check_out_lng: lng, check_out_photo: photo }).eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("attendance").insert({
@@ -502,10 +505,23 @@ export function OFMProvider({ children }: { children: ReactNode }) {
           user_name: currentUser.name,
           date,
           check_out: nowTime(),
+          check_out_lat: lat,
+          check_out_lng: lng,
+          check_out_photo: photo,
         });
         if (error) throw error;
       }
       await refresh(uid);
+    },
+
+    saveCompanyLocation: async ({ latitude, longitude, geofenceRadius }) => {
+      if (!company) return;
+      const { error } = await supabase
+        .from("companies")
+        .update({ latitude, longitude, geofence_radius: geofenceRadius })
+        .eq("id", company.id);
+      if (error) throw error;
+      setCompany({ ...company, latitude, longitude, geofenceRadius });
     },
 
     setWifiPassword: async (pw) => {
