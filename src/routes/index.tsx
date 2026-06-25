@@ -163,7 +163,12 @@ function Landing() {
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           {packages.map((p) => (
-            <Card key={p.name} className={p.highlight ? "border-primary shadow-lg" : ""}>
+            <Card
+              key={p.name}
+              className={`transition-all duration-300 hover:-translate-y-2 hover:shadow-elegant hover:border-primary ${
+                p.highlight ? "border-primary shadow-lg" : ""
+              }`}
+            >
               <CardHeader>
                 {p.highlight && (
                   <span className="mb-2 inline-block w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
