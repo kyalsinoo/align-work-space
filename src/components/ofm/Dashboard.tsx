@@ -22,6 +22,7 @@ import {
   Megaphone,
   Send,
   MessageCircle,
+  Trophy,
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ type ViewKey =
   | "insights"
   | "ai-summary"
   | "ai-assistant"
+  | "recruitment"
   | "settings";
 
 const STAFF_ROLES: Role[] = ["manager", "sales", "developer"];
@@ -102,7 +104,12 @@ export function Dashboard() {
     { key: "ai-summary" as ViewKey, label: "AI Data Summary", icon: Sparkles },
     { key: "ai-assistant" as ViewKey, label: "AI Assistant", icon: MessageCircle },
     { key: "insights" as ViewKey, label: "Saved AI Insights", icon: Bookmark },
-    ...(role === "admin" ? [{ key: "settings" as ViewKey, label: "Settings", icon: Settings }] : []),
+    ...(role === "admin"
+      ? [
+          { key: "recruitment" as ViewKey, label: "Recruitment Ranking", icon: Trophy },
+          { key: "settings" as ViewKey, label: "Settings", icon: Settings },
+        ]
+      : []),
   ];
 
   return (
@@ -122,7 +129,13 @@ export function Dashboard() {
           {nav.map((n) => (
             <button
               key={n.key}
-              onClick={() => (n.key === "ai-assistant" ? navigate({ to: "/ai-assistant" }) : setView(n.key))}
+              onClick={() =>
+                n.key === "ai-assistant"
+                  ? navigate({ to: "/ai-assistant" })
+                  : n.key === "recruitment"
+                    ? navigate({ to: "/recruitment-ranking" })
+                    : setView(n.key)
+              }
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 view === n.key
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
