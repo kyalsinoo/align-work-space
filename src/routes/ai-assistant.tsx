@@ -52,6 +52,7 @@ function AIAssistantPage() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [language, setLanguage] = useState<"en" | "my">("en");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auth guard — mirror the dashboard route's grace-period redirect.
