@@ -23,11 +23,19 @@ const AnalyzeInput = z.object({
     .array(
       z.object({
         name: z.string().max(200).optional(),
-        resume: z.string().min(1).max(12000),
+        // Either pasted text OR an uploaded file (image/PDF/text) as a data URL.
+        resume: z.string().max(12000).default(""),
+        fileName: z.string().max(300).optional(),
+        mimeType: z.string().max(120).optional(),
+        // data URL: "data:<mime>;base64,...."  (capped ~10MB encoded)
+        fileData: z.string().max(14_000_000).optional(),
       }),
     )
     .min(1)
-    .max(25),
+    .max(25)
+    .refine((arr) => arr.every((c) => c.resume.trim() || c.fileData), {
+      message: "Each candidate needs resume text or an uploaded file.",
+    }),
 });
 
 const ChatInput = z.object({
