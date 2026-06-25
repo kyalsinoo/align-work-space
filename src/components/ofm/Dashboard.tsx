@@ -596,6 +596,210 @@ function LeaveView() {
 }
 
 /* ---------- Attendance ---------- */
+function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function AttendanceCaptureDialog({
+  mode,
+  disabled,
+  onSubmit,
+}: {
+  mode: "in" | "out";
+  disabled: boolean;
+  onSubmit: (data: { lat: number; lng: number; photo: string }) => Promise<void>;
+}) {
+  const { company } = useOFM();
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [camError, setCamError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const hasGeofence = company?.latitude != null && company?.longitude != null;
+  const distance =
+    coords && hasGeofence
+      ? distanceMeters(coords.lat, coords.lng, company!.latitude!, company!.longitude!)
+      : null;
+  const withinFence = distance == null ? true : distance <= (company?.geofenceRadius ?? 200);
+
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setCameraReady(false);
+  };
+
+  const startCamera = async () => {
+    setCamError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setCameraReady(true);
+    } catch {
+      setCamError("Camera access denied. Please allow camera permission.");
+    }
+  };
+
+  useEffect(() => {
+    if (!open) {
+      stopCamera();
+      return;
+    }
+    setPhoto(null);
+    setGeoError(null);
+    setCoords(null);
+    if (!navigator.geolocation) {
+      setGeoError("Geolocation is not supported on this device.");
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => setGeoError("Location access denied. Please allow location permission."),
+        { enableHighAccuracy: true, timeout: 10000 },
+      );
+    }
+    startCamera();
+    return () => stopCamera();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const capture = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const w = 480;
+    const h = (video.videoHeight / video.videoWidth) * w || 360;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, w, h);
+    setPhoto(canvas.toDataURL("image/jpeg", 0.7));
+    stopCamera();
+  };
+
+  const submit = async () => {
+    if (!coords || !photo) return;
+    setSubmitting(true);
+    try {
+      await onSubmit({ lat: coords.lat, lng: coords.lng, photo });
+      toast.success(mode === "in" ? "Checked in" : "Checked out");
+      setOpen(false);
+    } catch {
+      toast.error("Failed to save attendance");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const canSubmit = !!coords && !!photo && withinFence && !submitting;
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          size="lg"
+          variant={mode === "in" ? "default" : "secondary"}
+          disabled={disabled}
+          className="h-14 px-8"
+        >
+          <Camera className="mr-2 h-5 w-5" />
+          {mode === "in" ? "Daily Check-In" : "Daily Check-Out"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{mode === "in" ? "Check-In" : "Check-Out"} — Face Verification</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          {/* Location status */}
+          <div className="rounded-lg border p-3 text-sm">
+            <div className="flex items-center gap-2 font-medium">
+              <MapPin className="h-4 w-4 text-primary" /> Location
+            </div>
+            {geoError ? (
+              <p className="mt-1 text-destructive">{geoError}</p>
+            ) : coords ? (
+              <div className="mt-1 space-y-1 text-muted-foreground">
+                <p>
+                  <Navigation className="mr-1 inline h-3 w-3" />
+                  {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+                </p>
+                {hasGeofence ? (
+                  withinFence ? (
+                    <p className="text-emerald-600">
+                      ✓ Within office area ({Math.round(distance!)} m away)
+                    </p>
+                  ) : (
+                    <p className="text-destructive">
+                      ✗ You are {Math.round(distance!)} m from the office (allowed{" "}
+                      {company?.geofenceRadius} m). Move closer to check {mode === "in" ? "in" : "out"}.
+                    </p>
+                  )
+                ) : (
+                  <p className="text-amber-600">Office location not set — showing current location only.</p>
+                )}
+              </div>
+            ) : (
+              <p className="mt-1 text-muted-foreground">Getting your location…</p>
+            )}
+          </div>
+
+          {/* Camera / photo */}
+          <div className="overflow-hidden rounded-lg border bg-muted">
+            {photo ? (
+              <img src={photo} alt="Captured" className="w-full" />
+            ) : (
+              <video ref={videoRef} playsInline muted className="w-full bg-black" />
+            )}
+          </div>
+          {camError && <p className="text-sm text-destructive">{camError}</p>}
+
+          <div className="flex gap-2">
+            {photo ? (
+              <Button variant="outline" className="flex-1" onClick={() => { setPhoto(null); startCamera(); }}>
+                Retake
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="flex-1"
+                disabled={!cameraReady}
+                onClick={capture}
+              >
+                <Camera className="mr-2 h-4 w-4" /> Capture
+              </Button>
+            )}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={submit} disabled={!canSubmit} className="w-full">
+            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Confirm Check-{mode === "in" ? "In" : "Out"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function AttendanceView({ role }: { role: Role }) {
   const { attendance, checkIn, checkOut, currentUser } = useOFM();
   const showPanel = role !== "admin";
@@ -609,12 +813,8 @@ function AttendanceView({ role }: { role: Role }) {
         <Card>
           <CardHeader><CardTitle className="text-base">Daily Check-In / Check-Out</CardTitle></CardHeader>
           <CardContent className="flex flex-wrap items-center gap-4">
-            <Button size="lg" disabled={!!mine?.checkIn} onClick={() => { checkIn(); toast.success("Checked in"); }} className="h-14 px-8">
-              <Clock className="mr-2 h-5 w-5" /> Daily Check-In
-            </Button>
-            <Button size="lg" variant="secondary" disabled={!mine?.checkIn || !!mine?.checkOut} onClick={() => { checkOut(); toast.success("Checked out"); }} className="h-14 px-8">
-              <Clock className="mr-2 h-5 w-5" /> Daily Check-Out
-            </Button>
+            <AttendanceCaptureDialog mode="in" disabled={!!mine?.checkIn} onSubmit={checkIn} />
+            <AttendanceCaptureDialog mode="out" disabled={!mine?.checkIn || !!mine?.checkOut} onSubmit={checkOut} />
             {mine && (
               <div className="text-sm text-muted-foreground">
                 In: <span className="font-medium text-foreground">{mine.checkIn ?? "—"}</span> · Out: <span className="font-medium text-foreground">{mine.checkOut ?? "—"}</span>
@@ -627,7 +827,7 @@ function AttendanceView({ role }: { role: Role }) {
         <CardHeader><CardTitle className="text-base">Attendance Logs</CardTitle></CardHeader>
         <CardContent className="p-0">
           <Table>
-            <TableHeader><TableRow><TableHead>Employee</TableHead><TableHead>Date</TableHead><TableHead>Check-In</TableHead><TableHead>Check-Out</TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead>Employee</TableHead><TableHead>Date</TableHead><TableHead>Check-In</TableHead><TableHead>Check-Out</TableHead><TableHead>Photo</TableHead></TableRow></TableHeader>
             <TableBody>
               {logs.map((a) => (
                 <TableRow key={a.id}>
@@ -635,9 +835,14 @@ function AttendanceView({ role }: { role: Role }) {
                   <TableCell>{a.date}</TableCell>
                   <TableCell>{a.checkIn ?? "—"}</TableCell>
                   <TableCell>{a.checkOut ?? "—"}</TableCell>
+                  <TableCell className="flex gap-1">
+                    {a.checkInPhoto && <img src={a.checkInPhoto} alt="in" className="h-8 w-8 rounded object-cover" />}
+                    {a.checkOutPhoto && <img src={a.checkOutPhoto} alt="out" className="h-8 w-8 rounded object-cover" />}
+                    {!a.checkInPhoto && !a.checkOutPhoto && "—"}
+                  </TableCell>
                 </TableRow>
               ))}
-              {logs.length === 0 && <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">No records</TableCell></TableRow>}
+              {logs.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No records</TableCell></TableRow>}
             </TableBody>
           </Table>
         </CardContent>
