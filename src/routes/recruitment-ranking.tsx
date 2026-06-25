@@ -509,54 +509,33 @@ function RecruitmentPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {candidates.map((c, i) => (
-                <div key={c.id} className="space-y-2 rounded-lg border border-border p-3">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={c.name}
-                      onChange={(e) => updateCandidate(c.id, "name", e.target.value)}
-                      placeholder={`Candidate ${i + 1} name (optional)`}
-                      className="flex-1"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => removeCandidate(c.id)}
-                      aria-label="Remove candidate"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {c.fileData ? (
-                    <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
-                      <span className="flex min-w-0 items-center gap-2 text-sm">
-                        <FileText className="h-4 w-4 shrink-0 text-primary" />
-                        <span className="truncate">{c.fileName}</span>
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => clearFile(c.id)}
-                        className="h-7 shrink-0 px-2 text-xs"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ) : (
-                    <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-muted/30 px-3 py-5 text-center text-sm text-muted-foreground transition-colors hover:bg-accent">
-                      <Upload className="h-5 w-5" />
-                      <span>Upload resume/CV file or picture</span>
-                      <span className="text-xs">PDF, DOC, TXT, or image (max 10MB)</span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*,.pdf,.doc,.docx,.txt"
-                        onChange={(e) => handleFile(c.id, e.target.files?.[0] ?? null)}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={candidates.map((c) => c.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4">
+                    {candidates.map((c, i) => (
+                      <SortableCandidate
+                        key={c.id}
+                        candidate={c}
+                        index={i}
+                        highlight={highlightId === c.id}
+                        nameRef={highlightId === c.id ? newCardRef : undefined}
+                        onUpdateName={(v) => updateCandidate(c.id, "name", v)}
+                        onRequestDelete={() => setPendingDeleteId(c.id)}
+                        onFile={(f) => handleFile(c.id, f)}
+                        onClearFile={() => clearFile(c.id)}
                       />
-                    </label>
-                  )}
-                </div>
-              ))}
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
               <Button onClick={runAnalysis} disabled={running} className="w-full">
                 {running ? (
                   <>
