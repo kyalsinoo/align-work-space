@@ -85,7 +85,7 @@ function Landing() {
             <h1 className="text-4xl font-bold leading-tight md:text-5xl">
               Run your office, intelligently.
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground dark:text-foreground/85">
               OfficeHub brings tasks, leave, attendance, events and an AI assistant into one
               clean workspace — with role-based access for admins, managers and staff.
             </p>
