@@ -155,3 +155,45 @@
 @utility shadow-elegant {
   box-shadow: var(--shadow-elegant);
 }
+
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+@utility text-glow {
+  text-shadow: var(--glow-cyan);
+}
+
+@utility shadow-glow {
+  box-shadow: var(--glow-cyan);
+}
+
+/* Atmospheric cyber background: glowing neon-blue grid + radial halos */
+@utility cyber-bg {
+  position: relative;
+  background-color: var(--color-background);
+  background-image:
+    radial-gradient(circle at 15% 20%, oklch(0.82 0.15 210 / 0.12), transparent 40%),
+    radial-gradient(circle at 85% 10%, oklch(0.7 0.16 195 / 0.1), transparent 45%),
+    radial-gradient(circle at 50% 100%, oklch(0.6 0.18 250 / 0.12), transparent 55%),
+    linear-gradient(oklch(0.82 0.15 210 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.82 0.15 210 / 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 44px 44px, 44px 44px;
+}
+
+@utility cyber-rings {
+  position: relative;
+}
+@utility cyber-rings::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, transparent 38%, oklch(0.82 0.15 210 / 0.08) 39%, transparent 41%),
+    radial-gradient(circle, transparent 58%, oklch(0.7 0.16 195 / 0.06) 59%, transparent 61%);
+  background-size: 520px 520px, 760px 760px;
+  background-position: 80% -10%, 80% -10%;
+  background-repeat: no-repeat;
+}
