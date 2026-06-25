@@ -159,7 +159,7 @@ export const summarizeData = createServerFn({ method: "POST" })
     } else {
       // STAFF: strictly personal data only.
       const myRole = primaryRole;
-      const [myEndedTasks, myLeaves] = await Promise.all([
+      const [myEndedTasks, myLeaves, myAttendance] = await Promise.all([
         supabase
           .from("tasks")
           .select("title, roles, created_at")
@@ -171,6 +171,12 @@ export const summarizeData = createServerFn({ method: "POST" })
           .select("reason, status, created_at")
           .eq("user_id", userId)
           .gte("created_at", monthStart),
+        supabase
+          .from("attendance")
+          .select("date, check_in, check_out")
+          .eq("user_id", userId)
+          .gte("date", monthStart.slice(0, 10))
+          .order("date", { ascending: false }),
       ]);
 
       const approvedDays = (myLeaves.data ?? []).filter(
@@ -189,12 +195,19 @@ export const summarizeData = createServerFn({ method: "POST" })
         myPendingLeaveRequestsThisMonth: (myLeaves.data ?? []).filter(
           (l) => l.status === "pending",
         ).length,
+        myAttendanceThisMonth: (myAttendance.data ?? []).map((a) => ({
+          date: a.date,
+          checkIn: a.check_in,
+          checkOut: a.check_out,
+        })),
+        myAttendanceDaysThisMonth: (myAttendance.data ?? []).filter((a) => a.check_in).length,
       };
     }
 
     const system =
       `You are the OFM AI Assistant. Analyze the provided JSON data context and generate a clear, professional summary exclusively in polite, natural Burmese (မြန်မာဘာသာ).\n\n` +
-      `Strictly enforce privacy: If the current user role is 'Staff' (scope is "personal-only"), you must only answer about their own Task/leave records. If they ask about other employees' private metrics (other people's leave counts, attendance, etc.), politely decline in Burmese, stating they do not have administrative permission (ဤအချက်အလက်ကို ကြည့်ရှုခွင့် မရှိပါ).\n\n` +
+      `Strictly enforce privacy: If the current user role is 'Staff' (scope is "personal-only"), you must only answer about their own Task/leave/attendance records. If they ask about other employees' private metrics (other people's leave counts, attendance, check-in/out, etc.), politely decline in Burmese, stating they do not have administrative permission (ဤအချက်အလက်ကို ကြည့်ရှုခွင့် မရှိပါ).\n\n` +
+      `Attendance: The data context includes attendance check-in / check-out records (date, checkIn, checkOut times). For elevated users this is company-wide (attendanceThisMonth, attendanceTodayCheckedIn); for staff this is personal only (myAttendanceThisMonth, myAttendanceDaysThisMonth). Answer attendance questions — who checked in today, a person's check-in/out times, how many days attended this month — using these records. A null checkOut means they have not checked out yet.\n\n` +
       `Company directory exception: The "companyDirectory" object maps each role (admin, manager, developer, sales, etc.) to the names of the people who hold that role. This is public team-directory information available to EVERYONE, including Staff. When the user asks who the admin / manager / developer / sales / staff is (e.g. "who is admin", "ဘယ်သူက admin လဲ"), answer with the matching name(s) from companyDirectory. If a role has no one, say there is no one assigned to that role.\n\n` +
       `Format the output using clear bullet points and bold text for key metrics to ensure it is easy to read at a glance. Only use facts present in the JSON context — never invent data.\n\n` +
       `DATA CONTEXT (read-only):\n${JSON.stringify(dataContext)}`;
