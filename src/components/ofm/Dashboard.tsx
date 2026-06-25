@@ -354,7 +354,7 @@ function EmployeesView({ role }: { role: Role }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">Staff Data List</p>
-        {!readOnly && <StaffDialog onSave={(d) => { createStaff(d); toast.success("Staff account created"); }} trigger={<Button><Plus className="mr-2 h-4 w-4" /> Create Staff Account</Button>} />}
+        {!readOnly && <StaffDialog onSave={async (d) => { await createStaff(d); toast.success("Staff account created"); }} trigger={<Button><Plus className="mr-2 h-4 w-4" /> Create Staff Account</Button>} />}
         {readOnly && <Badge variant="secondary">Read-only view</Badge>}
       </div>
       <Card>
@@ -379,7 +379,7 @@ function EmployeesView({ role }: { role: Role }) {
                       <div className="flex justify-end gap-2">
                         <StaffDialog
                           initial={u}
-                          onSave={(d) => { updateStaff(u.id, d); toast.success("Staff updated"); }}
+                          onSave={async (d) => { await updateStaff(u.id, d); toast.success("Staff updated"); }}
                           trigger={<Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>}
                         />
                       </div>
@@ -398,8 +398,9 @@ function EmployeesView({ role }: { role: Role }) {
   );
 }
 
-function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d: { name: string; email: string; password: string; role: Role }) => void; trigger: React.ReactNode }) {
+function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d: { name: string; email: string; password: string; role: Role }) => void | Promise<void>; trigger: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [name, setName] = useState(initial?.name ?? "");
   const [email, setEmail] = useState(initial?.email ?? "");
   const [password, setPassword] = useState(initial?.password ?? "");
@@ -445,14 +446,22 @@ function StaffDialog({ initial, onSave, trigger }: { initial?: User; onSave: (d:
         </div>
         <DialogFooter>
           <Button
-            disabled={!name || !email || !password}
-            onClick={() => {
+            disabled={!name || !email || !password || saving}
+            onClick={async () => {
               if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error("Enter a valid email like name@gmail.com"); return; }
               if (!isStrongPassword(password)) { toast.error("Password must be 8+ chars with an uppercase letter, a number and a special character"); return; }
-              onSave({ name, email, password, role }); setOpen(false);
+              setSaving(true);
+              try {
+                await onSave({ name, email, password, role });
+                setOpen(false);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Failed to save staff account");
+              } finally {
+                setSaving(false);
+              }
             }}
           >
-            Save
+            {saving ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
