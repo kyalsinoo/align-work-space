@@ -15,8 +15,21 @@ const EventInput = z.object({
 });
 
 export const generateEvent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => EventInput.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("is_admin");
+    if (!isAdmin) {
+      const { data: roleRows } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const roles = (roleRows ?? []).map((r) => r.role as string);
+      if (!roles.includes("admin") && !roles.includes("manager")) {
+        throw new Error("Forbidden: only admins and managers can generate events.");
+      }
+    }
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
