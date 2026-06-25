@@ -123,9 +123,16 @@ function AuthPage() {
                   <div className="space-y-1">
                     <Label>Password</Label>
                     <PasswordInput value={rPass} onChange={(e) => setRPass(e.target.value)} />
-                    <p className={`text-xs ${rPass && rPass.length < 8 ? "text-destructive" : "text-muted-foreground"}`}>
-                      Password must be at least 8 characters
-                    </p>
+                    <ul className="space-y-0.5 pt-1">
+                      {PASSWORD_RULES.map((r) => {
+                        const ok = r.test(rPass);
+                        return (
+                          <li key={r.label} className={`text-xs ${rPass ? (ok ? "text-green-600" : "text-destructive") : "text-muted-foreground"}`}>
+                            {rPass && ok ? "✓" : "•"} {r.label}
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
                   <div className="space-y-1"><Label>Company Name</Label><Input value={cName} onChange={(e) => setCName(e.target.value)} /></div>
                   <div className="space-y-1">
