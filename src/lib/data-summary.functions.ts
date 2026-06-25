@@ -159,7 +159,7 @@ export const summarizeData = createServerFn({ method: "POST" })
     } else {
       // STAFF: strictly personal data only.
       const myRole = primaryRole;
-      const [myEndedTasks, myLeaves] = await Promise.all([
+      const [myEndedTasks, myLeaves, myAttendance] = await Promise.all([
         supabase
           .from("tasks")
           .select("title, roles, created_at")
@@ -171,6 +171,12 @@ export const summarizeData = createServerFn({ method: "POST" })
           .select("reason, status, created_at")
           .eq("user_id", userId)
           .gte("created_at", monthStart),
+        supabase
+          .from("attendance")
+          .select("date, check_in, check_out")
+          .eq("user_id", userId)
+          .gte("date", monthStart.slice(0, 10))
+          .order("date", { ascending: false }),
       ]);
 
       const approvedDays = (myLeaves.data ?? []).filter(
