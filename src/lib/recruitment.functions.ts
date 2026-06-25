@@ -183,7 +183,7 @@ export const analyzeRecruitment = createServerFn({ method: "POST" })
         certifications: a.certifications ?? [],
         projects: a.projects ?? "",
       },
-      analysis: a as unknown as Record<string, unknown>,
+      analysis: JSON.parse(JSON.stringify(a)),
       status: a.status ?? "Review",
       score: Math.max(0, Math.min(100, Math.round(a.score ?? 0))),
     }));
