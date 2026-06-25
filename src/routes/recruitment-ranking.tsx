@@ -238,9 +238,9 @@ function RecruitmentPage() {
       toast.error("Please enter a job title.");
       return;
     }
-    const filled = candidates.filter((c) => c.resume.trim());
+    const filled = candidates.filter((c) => c.fileData || c.resume.trim());
     if (filled.length === 0) {
-      toast.error("Add at least one candidate resume.");
+      toast.error("Upload at least one candidate file.");
       return;
     }
     setRunning(true);
