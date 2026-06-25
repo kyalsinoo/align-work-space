@@ -144,6 +144,102 @@ function statusVariant(status: string): "default" | "secondary" | "destructive" 
   return "secondary";
 }
 
+function SortableCandidate({
+  candidate: c,
+  index,
+  highlight,
+  nameRef,
+  onUpdateName,
+  onRequestDelete,
+  onFile,
+  onClearFile,
+}: {
+  candidate: CandidateInput;
+  index: number;
+  highlight: boolean;
+  nameRef?: React.RefObject<HTMLInputElement>;
+  onUpdateName: (value: string) => void;
+  onRequestDelete: () => void;
+  onFile: (file: File | null) => void;
+  onClearFile: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: c.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`space-y-2 rounded-lg border p-3 transition-colors ${
+        highlight
+          ? "animate-fade-in border-primary ring-2 ring-primary/40"
+          : "border-border"
+      } ${isDragging ? "opacity-80 shadow-lg" : ""}`}
+    >
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="cursor-grab touch-none rounded p-1 text-muted-foreground hover:bg-muted active:cursor-grabbing"
+          aria-label="Drag to reorder"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <Input
+          ref={nameRef}
+          value={c.name}
+          onChange={(e) => onUpdateName(e.target.value)}
+          placeholder={`Candidate ${index + 1} name (optional)`}
+          className="flex-1"
+        />
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onRequestDelete}
+          aria-label="Remove candidate"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+      {c.fileData ? (
+        <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
+          <span className="flex min-w-0 items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 shrink-0 text-primary" />
+            <span className="truncate">{c.fileName}</span>
+          </span>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onClearFile}
+            className="h-7 shrink-0 px-2 text-xs"
+          >
+            Remove
+          </Button>
+        </div>
+      ) : (
+        <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-muted/30 px-3 py-5 text-center text-sm text-muted-foreground transition-colors hover:bg-accent">
+          <Upload className="h-5 w-5" />
+          <span>Upload resume/CV file or picture</span>
+          <span className="text-xs">PDF, DOC, TXT, or image (max 10MB)</span>
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*,.pdf,.doc,.docx,.txt"
+            onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
+
+
 function RecruitmentPage() {
   const { currentUser, loading, hasSession } = useOFM();
   const navigate = useNavigate();
