@@ -354,7 +354,7 @@ function EmployeesView({ role }: { role: Role }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">Staff Data List</p>
-        {!readOnly && <StaffDialog onSave={(d) => { createStaff(d); toast.success("Staff account created"); }} trigger={<Button><Plus className="mr-2 h-4 w-4" /> Create Staff Account</Button>} />}
+        {!readOnly && <StaffDialog onSave={async (d) => { await createStaff(d); toast.success("Staff account created"); }} trigger={<Button><Plus className="mr-2 h-4 w-4" /> Create Staff Account</Button>} />}
         {readOnly && <Badge variant="secondary">Read-only view</Badge>}
       </div>
       <Card>
