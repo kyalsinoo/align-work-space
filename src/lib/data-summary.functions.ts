@@ -74,6 +74,28 @@ export const summarizeData = createServerFn({ method: "POST" })
     const weekStart = startOfWeekISO();
     const monthStart = startOfMonthISO();
 
+    // ----- Company directory (name per role) — visible to everyone in the
+    // same company via RLS; used to answer "who is the admin/manager/etc." -----
+    const { data: roleRowsAll } = await supabase
+      .from("user_roles")
+      .select("user_id, role");
+    const { data: profileRows } = await supabase
+      .from("profiles")
+      .select("id, full_name, email");
+    const nameById = new Map(
+      (profileRows ?? []).map((p) => [
+        p.id as string,
+        (p.full_name as string) || (p.email as string) || "Unknown",
+      ]),
+    );
+    const directory: Record<string, string[]> = {};
+    for (const r of roleRowsAll ?? []) {
+      const roleKey = r.role as string;
+      const name = nameById.get(r.user_id as string);
+      if (!name) continue;
+      (directory[roleKey] ??= []).push(name);
+    }
+
     // ----- Build the JSON context per role -----
     let dataContext: Record<string, unknown>;
 
@@ -105,6 +127,7 @@ export const summarizeData = createServerFn({ method: "POST" })
 
       dataContext = {
         scope: "company-wide",
+        companyDirectory: directory,
         viewerRole: primaryRole,
         viewerName: userName,
         endedTasksThisWeek: (endedTasks.data ?? []).map((t) => ({
@@ -140,6 +163,7 @@ export const summarizeData = createServerFn({ method: "POST" })
 
       dataContext = {
         scope: "personal-only",
+        companyDirectory: directory,
         viewerRole: myRole,
         viewerName: userName,
         myEndedTasksThisWeek: (myEndedTasks.data ?? []).map((t) => t.title),
@@ -154,7 +178,8 @@ export const summarizeData = createServerFn({ method: "POST" })
 
     const system =
       `You are the OFM AI Assistant. Analyze the provided JSON data context and generate a clear, professional summary exclusively in polite, natural Burmese (မြန်မာဘာသာ).\n\n` +
-      `Strictly enforce privacy: If the current user role is 'Staff' (scope is "personal-only"), you must only answer using their personal data records. If they ask about other employees or company-wide metrics, politely decline in Burmese, stating they do not have administrative permission (ဤအချက်အလက်ကို ကြည့်ရှုခွင့် မရှိပါ).\n\n` +
+      `Strictly enforce privacy: If the current user role is 'Staff' (scope is "personal-only"), you must only answer about their own Task/leave records. If they ask about other employees' private metrics (other people's leave counts, attendance, etc.), politely decline in Burmese, stating they do not have administrative permission (ဤအချက်အလက်ကို ကြည့်ရှုခွင့် မရှိပါ).\n\n` +
+      `Company directory exception: The "companyDirectory" object maps each role (admin, manager, developer, sales, etc.) to the names of the people who hold that role. This is public team-directory information available to EVERYONE, including Staff. When the user asks who the admin / manager / developer / sales / staff is (e.g. "who is admin", "ဘယ်သူက admin လဲ"), answer with the matching name(s) from companyDirectory. If a role has no one, say there is no one assigned to that role.\n\n` +
       `Format the output using clear bullet points and bold text for key metrics to ensure it is easy to read at a glance. Only use facts present in the JSON context — never invent data.\n\n` +
       `DATA CONTEXT (read-only):\n${JSON.stringify(dataContext)}`;
 
