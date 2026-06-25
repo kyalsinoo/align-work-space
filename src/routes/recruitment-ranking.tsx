@@ -405,7 +405,7 @@ function RecruitmentPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base">Candidates</CardTitle>
-                  <CardDescription>Paste each applicant's resume.</CardDescription>
+                  <CardDescription>Upload each applicant's resume/CV (image or document).</CardDescription>
                 </div>
                 <Button size="sm" variant="outline" onClick={addCandidate}>
                   <Plus className="mr-1 h-4 w-4" /> Add
